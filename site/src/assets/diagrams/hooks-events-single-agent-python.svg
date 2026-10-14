@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 484" width="720" height="484">
+  <!-- Type: loop with phase boxes (python). Story: invocation events bracket the agent loop; model-call and tool events alternate until the model makes no tool calls. -->
+  <defs>
+    <marker id="arrow" viewBox="0 0 8 6" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto" markerUnits="userSpaceOnUse">
+      <path class="dg-head" d="M0,0 L8,3 L0,6 Z"/>
+    </marker>
+  </defs>
+
+  <!-- Zones -->
+  <rect class="dg-zone" x="88" y="124" width="552" height="248" rx="8"/>
+  <text class="dg-eyebrow" x="104" y="144">AGENT LOOP</text>
+
+  <!-- Edges -->
+  <path class="dg-edge" d="M212,100 V162" marker-end="url(#arrow)"/>
+  <path class="dg-edge" d="M312,200 H406" marker-end="url(#arrow)"/>
+  <path class="dg-edge" d="M408,232 H314" marker-end="url(#arrow)"/>
+  <path class="dg-edge" d="M212,268 V402" marker-end="url(#arrow)"/>
+
+  <!-- Edge labels -->
+  <rect class="dg-mask is-on-zone" x="320" y="180" width="80" height="12" rx="2"/>
+  <text class="dg-label" x="360" y="189" text-anchor="middle">TOOL CALLS</text>
+  <rect class="dg-mask is-on-zone" x="330" y="212" width="60" height="12" rx="2"/>
+  <text class="dg-label" x="360" y="221.5" text-anchor="middle">RESULTS</text>
+  <text class="dg-label" x="224" y="323.5">NO TOOL CALLS</text>
+
+  <!-- Phases: events listed in firing order -->
+  <rect class="dg-node" x="112" y="16" width="200" height="84" rx="6"/>
+  <text class="dg-name" x="128" y="45">Request start</text>
+  <text class="dg-code" x="128" y="63">BeforeInvocationEvent</text>
+  <text class="dg-code" x="128" y="83">MessageAddedEvent</text>
+  <text class="dg-sub" x="257" y="83">prompt</text>
+
+  <rect class="dg-node" x="112" y="164" width="200" height="104" rx="6"/>
+  <text class="dg-name" x="128" y="193">Model call</text>
+  <text class="dg-code" x="128" y="211">BeforeModelCallEvent</text>
+  <text class="dg-code" x="128" y="231">AfterModelCallEvent</text>
+  <text class="dg-code" x="128" y="251">MessageAddedEvent</text>
+  <text class="dg-sub" x="257" y="251">model</text>
+
+  <rect class="dg-node" x="408" y="164" width="208" height="188" rx="6"/>
+  <rect class="dg-zone" x="416" y="224" width="192" height="68" rx="4"/>
+  <text class="dg-name" x="424" y="193">Tool execution</text>
+  <text class="dg-code" x="424" y="211">BeforeToolsEvent</text>
+  <text class="dg-eyebrow" x="432" y="240">EACH TOOL CALL</text>
+  <text class="dg-code" x="432" y="260">BeforeToolCallEvent</text>
+  <text class="dg-code" x="432" y="280">AfterToolCallEvent</text>
+  <text class="dg-code" x="424" y="312">AfterToolsEvent</text>
+  <text class="dg-code" x="424" y="332">MessageAddedEvent</text>
+  <text class="dg-sub" x="553" y="332">results</text>
+
+  <rect class="dg-node" x="112" y="404" width="200" height="64" rx="6"/>
+  <text class="dg-name" x="128" y="433">Request end</text>
+  <text class="dg-code" x="128" y="451">AfterInvocationEvent</text>
+</svg>

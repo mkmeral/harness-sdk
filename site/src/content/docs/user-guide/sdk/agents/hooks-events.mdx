@@ -9,6 +9,7 @@ sourceLinks:
   - path: strands-ts/src/hooks/events.ts
 ---
 
+import Diagram from '@components/Diagram.astro'
 
 A hook callback subscribes to a specific event type and runs when that event fires during agent execution. This page is the reference for every event: when each one fires across the lifecycle, the full catalogue of event types, and which properties you can modify to change agent behavior. To write and register a callback, see [Hooks](hooks.md).
 
@@ -21,95 +22,17 @@ The following diagram shows when hook events are emitted during a typical agent 
 <Tabs>
 <Tab label="Python">
 
-```mermaid
-flowchart LR
- subgraph Start["Request Start Events"]
-    direction TB
-        BeforeInvocationEvent["BeforeInvocationEvent"]
-        StartMessage["MessageAddedEvent"]
-        BeforeInvocationEvent --> StartMessage
-  end
- subgraph Model["Model Events"]
-    direction TB
-        BeforeModelCallEvent["BeforeModelCallEvent"]
-        AfterModelCallEvent["AfterModelCallEvent"]
-        ModelMessage["MessageAddedEvent"]
-        BeforeModelCallEvent --> AfterModelCallEvent
-        AfterModelCallEvent --> ModelMessage
-  end
-  subgraph Tool["Tool Events"]
-    direction TB
-        BeforeToolsEvent["BeforeToolsEvent"]
-        BeforeToolCallEvent["BeforeToolCallEvent"]
-        AfterToolCallEvent["AfterToolCallEvent"]
-        AfterToolsEvent["AfterToolsEvent"]
-        ToolMessage["MessageAddedEvent"]
-        BeforeToolsEvent --> BeforeToolCallEvent
-        BeforeToolCallEvent --> AfterToolCallEvent
-        AfterToolCallEvent --> AfterToolsEvent
-        AfterToolsEvent --> ToolMessage
-  end
-  subgraph End["Request End Events"]
-    direction TB
-        AfterInvocationEvent["AfterInvocationEvent"]
-  end
-Start --> Model
-Model <--> Tool
-Tool --> End
-```
+<Diagram
+  name="hooks-events-single-agent-python"
+  alt="Hook events in a single-agent invocation, in Python. The request starts with BeforeInvocationEvent, then MessageAddedEvent for the prompt. Inside the agent loop, each model call fires BeforeModelCallEvent, AfterModelCallEvent, and MessageAddedEvent for the model's message. If the model makes tool calls, tool execution fires BeforeToolsEvent; then BeforeToolCallEvent and AfterToolCallEvent for each tool call; then AfterToolsEvent and MessageAddedEvent for the tool results, which go back to the model. When the model makes no tool calls, the request ends with AfterInvocationEvent."
+/>
 </Tab>
 <Tab label="TypeScript">
 
-```mermaid
-flowchart LR
- subgraph Start["Request Start Events"]
-    direction TB
-        BeforeInvocationEvent["BeforeInvocationEvent"]
-        StartMessage["MessageAddedEvent"]
-        BeforeInvocationEvent --> StartMessage
-  end
- subgraph Model["Model Events"]
-    direction TB
-        BeforeModelCallEvent["BeforeModelCallEvent"]
-        ModelStreamUpdateEvent["ModelStreamUpdateEvent"]
-        ContentBlockEvent["ContentBlockEvent"]
-        ModelMessageEvent["ModelMessageEvent"]
-        AfterModelCallEvent["AfterModelCallEvent"]
-        ModelMessage["MessageAddedEvent"]
-        BeforeModelCallEvent --> ModelStreamUpdateEvent
-        ModelStreamUpdateEvent --> ContentBlockEvent
-        ContentBlockEvent --> ModelMessageEvent
-        ModelMessageEvent --> AfterModelCallEvent
-        AfterModelCallEvent --> ModelMessage
-  end
-  subgraph Tool["Tool Events"]
-    direction TB
-        BeforeToolsEvent["BeforeToolsEvent"]
-        BeforeToolCallEvent["BeforeToolCallEvent"]
-        ToolStreamUpdateEvent["ToolStreamUpdateEvent"]
-        ToolResultEvent["ToolResultEvent"]
-        AfterToolCallEvent["AfterToolCallEvent"]
-        AfterToolsEvent["AfterToolsEvent"]
-        ToolMessage["MessageAddedEvent"]
-        BeforeToolsEvent --> BeforeToolCallEvent
-        BeforeToolCallEvent --> ToolStreamUpdateEvent
-        ToolStreamUpdateEvent --> ToolResultEvent
-        ToolResultEvent --> AfterToolCallEvent
-        AfterToolCallEvent --> AfterToolsEvent
-        AfterToolsEvent --> ToolMessage
-  end
-  subgraph End["Request End Events"]
-    direction TB
-        AgentResultEvent["AgentResultEvent"]
-        AfterInvocationEvent["AfterInvocationEvent"]
-        InterruptEvent["InterruptEvent"]
-        AgentResultEvent --> AfterInvocationEvent
-        InterruptEvent --> AfterInvocationEvent
-  end
-Start --> Model
-Model <--> Tool
-Tool --> End
-```
+<Diagram
+  name="hooks-events-single-agent-typescript"
+  alt="Hook events in a single-agent invocation, in TypeScript. The request starts with BeforeInvocationEvent, then MessageAddedEvent for the prompt. Inside the agent loop, each model call fires BeforeModelCallEvent, ModelStreamUpdateEvent and ContentBlockEvent while the response streams, ModelMessageEvent, and AfterModelCallEvent. If the model makes tool calls, tool execution fires BeforeToolsEvent; then BeforeToolCallEvent, ToolStreamUpdateEvent, AfterToolCallEvent, and ToolResultEvent for each tool call; then AfterToolsEvent and MessageAddedEvent twice, first for the model's message and then for the tool results, which go back to the model. When the model makes no tool calls, MessageAddedEvent fires for the model's message and the request ends with AfterInvocationEvent, then AgentResultEvent. If tool execution is interrupted, InterruptEvent fires once per unanswered interrupt before the request ends."
+/>
 </Tab>
 </Tabs>
 
@@ -120,59 +43,17 @@ The following diagram shows when multi-agent hook events are emitted during orch
 <Tabs>
 <Tab label="Python">
 
-```mermaid
-flowchart LR
-subgraph Init["Initialization"]
-    direction TB
-    MultiAgentInitializedEvent["MultiAgentInitializedEvent"]
-end
-subgraph Invocation["Invocation Lifecycle"]
-    direction TB
-    BeforeMultiAgentInvocationEvent["BeforeMultiAgentInvocationEvent"]
-    AfterMultiAgentInvocationEvent["AfterMultiAgentInvocationEvent"]
-    BeforeMultiAgentInvocationEvent --> NodeExecution
-    NodeExecution --> AfterMultiAgentInvocationEvent
-end
-subgraph NodeExecution["Node Execution (Repeated)"]
-    direction TB
-    BeforeNodeCallEvent["BeforeNodeCallEvent"]
-    AfterNodeCallEvent["AfterNodeCallEvent"]
-    BeforeNodeCallEvent --> AfterNodeCallEvent
-end
-Init --> Invocation
-```
+<Diagram
+  name="hooks-events-multi-agent-python"
+  alt="Multi-agent hook events, in Python. MultiAgentInitializedEvent fires once when the orchestrator is initialized. Each invocation starts with BeforeMultiAgentInvocationEvent. Every node the orchestrator runs fires BeforeNodeCallEvent and AfterNodeCallEvent, and this repeats for the next node. The invocation ends with AfterMultiAgentInvocationEvent."
+/>
 </Tab>
 <Tab label="TypeScript">
 
-```mermaid
-flowchart LR
-subgraph Init["Initialization"]
-    direction TB
-    MultiAgentInitializedEvent["MultiAgentInitializedEvent"]
-end
-subgraph Invocation["Invocation Lifecycle"]
-    direction TB
-    BeforeMultiAgentInvocationEvent["BeforeMultiAgentInvocationEvent"]
-    AfterMultiAgentInvocationEvent["AfterMultiAgentInvocationEvent"]
-    MultiAgentResultEvent["MultiAgentResultEvent"]
-    BeforeMultiAgentInvocationEvent --> NodeExecution
-    NodeExecution --> AfterMultiAgentInvocationEvent
-    AfterMultiAgentInvocationEvent --> MultiAgentResultEvent
-end
-subgraph NodeExecution["Node Execution (Repeated)"]
-    direction TB
-    BeforeNodeCallEvent["BeforeNodeCallEvent"]
-    NodeStreamUpdateEvent["NodeStreamUpdateEvent"]
-    AfterNodeCallEvent["AfterNodeCallEvent"]
-    NodeResultEvent["NodeResultEvent"]
-    MultiAgentHandoffEvent["MultiAgentHandoffEvent"]
-    BeforeNodeCallEvent --> NodeStreamUpdateEvent
-    NodeStreamUpdateEvent --> AfterNodeCallEvent
-    AfterNodeCallEvent --> NodeResultEvent
-    NodeResultEvent --> MultiAgentHandoffEvent
-end
-Init --> Invocation
-```
+<Diagram
+  name="hooks-events-multi-agent-typescript"
+  alt="Multi-agent hook events, in TypeScript. MultiAgentInitializedEvent fires once when the orchestrator is initialized. Each invocation starts with BeforeMultiAgentInvocationEvent. Every node the orchestrator runs fires BeforeNodeCallEvent, NodeStreamUpdateEvent while it streams, NodeResultEvent, and AfterNodeCallEvent; MultiAgentHandoffEvent fires when execution moves on to the next node. The invocation ends with AfterMultiAgentInvocationEvent, then MultiAgentResultEvent."
+/>
 </Tab>
 </Tabs>
 
