@@ -95,6 +95,7 @@ the same page.
 | `dg-node is-input` | Users, requests, external systems. Quieter than the system itself |
 | `dg-node is-hub` | Accumulated state at the center of a loop. Inverted fill; use `is-hub-text` on its labels |
 | `dg-node is-optional` | Conditional or optional step (dashed) |
+| `dg-node is-event` | Lifecycle event chip: one event name per chip in a centered `dg-code` (baseline `y + 18`), 28px tall, or 44px with a `dg-sub` qualifier inside (baseline `y + 34`). Same width for every chip in a diagram; stack them 12px apart inside a stage `dg-zone`. Tinted so it never reads as a zone |
 | `dg-zone` | Grouping region: "these belong together", a scope, a phase band |
 | `dg-zone is-boundary` | Trust, process, or sandbox boundary (dashed, no fill). A sandbox with nothing drawn inside it can carry a `dg-name` + `dg-sub` directly instead of an eyebrow |
 | `dg-edge` | Default connector |
@@ -162,12 +163,11 @@ existing `--dg-*` tokens. Don't hard-code a color in the SVG.
   - Name and sub: baselines `cy - 3` and `cy + 15`.
   - Name and two code lines, or name + sub + code: baselines `cy - 11`, `cy + 7` and
     `cy + 23`.
-  - **List box** (a stage with its events or members): left-align at `x + 16`. Name
-    baseline at `y + 29`, the first `dg-code` line at `y + 47`, then every 20px. Height is
-    `47 + 20·(n−1) + 17`, rounded up to a multiple of 4.
-  - **Nested group inside a list box** (for example `EACH TOOL CALL`): a `dg-zone` with
-    `rx="4"`, inset 8px from the box, with a `dg-eyebrow` at `+16`/`+16` and its list
-    indented 8px further.
+  - **Stage of events:** a `dg-zone` with a `dg-eyebrow` at `+16`/`+20`, holding one
+    `dg-node is-event` chip per event (see the classes table), stacked 12px apart. A
+    nested group (for example `EACH TOOL CALL`) is a `dg-zone` inside the stage with its
+    own eyebrow. Never list identifiers as plain text lines inside a box: if readers
+    must tell items apart from labels, give each item a chip.
 - **Paint order (file order):** zones → zone labels → edges → label masks and labels →
   nodes → node text. Edges come before nodes so boxes cover the line ends cleanly.
 
@@ -250,10 +250,14 @@ and it fans out with r=8 elbows to one box per outcome, each exit labeled with t
 (`PROCEED`, `GUIDE`). Accent the outcome the page is about. Use this instead of a
 flowchart when there's a single decision.
 
-**Lifecycle.** Stages are list boxes holding their event names in firing order (don't
-draw arrows between consecutive events, since the order already shows the sequence). A
-loop zone wraps the repeating stages. Diagrams inside language tabs may use
-language-specific identifiers. Verify every event name and its order against the source.
+**Lifecycle.** Every event is its own `is-event` chip, and nothing else is a chip. Stages
+are zones named with an eyebrow, holding their chips in firing order (no arrows between
+consecutive chips; the stacking shows the sequence). Edges carry only conditions: an
+event that fires on a path is a chip placed on that path, never an edge label. Put a
+qualifier that tells two identical events apart inside the chip as a `dg-sub`, never as
+loose text beside it. A loop zone wraps the repeating stages. Diagrams inside language
+tabs may use language-specific identifiers. Verify every event name and its order
+against the source.
 
 **Trace waterfall.** Time runs left to right with a `TIME` axis arrow at the bottom. The
 parent span is one full-width bar on top; child spans sit in a zone below, one row each,

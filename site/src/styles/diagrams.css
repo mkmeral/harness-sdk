@@ -67,6 +67,12 @@
 .dg-node.is-optional {
   stroke-dasharray: 4 3;
 }
+/* Lifecycle event chip: one event name per chip, stacked inside a stage zone.
+   Tinted so it never reads as a zone or a plain node. */
+.dg-node.is-event {
+  fill: color-mix(in srgb, var(--dg-ink) 7%, var(--dg-paper));
+  stroke: color-mix(in srgb, var(--dg-ink) 40%, transparent);
+}
 
 /* Grouping region: a scope, boundary, or "these belong together". */
 .dg-zone {

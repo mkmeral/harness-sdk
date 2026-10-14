@@ -29,9 +29,8 @@
   <text class="dg-sub" x="112" y="119" text-anchor="middle">model, hooks, state</text>
 
   <rect class="dg-node" x="224" y="64" width="160" height="80" rx="6"/>
-  <text class="dg-name" x="304" y="93" text-anchor="middle">Sandbox tools</text>
-  <text class="dg-code" x="304" y="111" text-anchor="middle">sandbox_shell</text>
-  <text class="dg-code" x="304" y="127" text-anchor="middle">sandbox_file_editor</text>
+  <text class="dg-name" x="304" y="101" text-anchor="middle">Sandbox tools</text>
+  <text class="dg-sub" x="304" y="119" text-anchor="middle">shell, file editor</text>
 
   <rect class="dg-node is-focal" x="512" y="64" width="176" height="80" rx="6"/>
   <text class="dg-name is-focal-text" x="600" y="101" text-anchor="middle">Execution backend</text>

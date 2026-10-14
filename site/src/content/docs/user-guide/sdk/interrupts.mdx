@@ -15,7 +15,7 @@ When your agent needs human approval or input before it continues, raise an inte
 
 <Diagram
   name="interrupts-resume-loop"
-  alt="Interrupt and resume. A request invokes the agent and a hook or tool runs. If it raises interrupts, the agent stops its loop and returns the interrupts to your application, which collects a response for each one and resumes the agent with them. The hook or tool runs again with those responses; if it raises new interrupts, the cycle repeats. When no interrupts are raised, the agent loop continues."
+  alt="Interrupt and resume. Your application sends a request to the agent, where a hook or tool runs. If it raises interrupts, the agent stops and returns them to your application, which collects a response for each one and resumes the agent with them. The hook or tool runs again with those responses; if it raises new interrupts, the cycle repeats. When no interrupts are raised, the agent loop continues."
 />
 
 ## Hooks

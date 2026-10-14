@@ -21,7 +21,7 @@ Strands implements the second pattern. The agent process runs on your host and h
 
 <Diagram
   name="sandbox-execution-boundary"
-  alt="The agent runtime and the sandbox. On your infrastructure, the agent handles model calls, hooks, and state, and calls the sandbox tools, such as sandbox_shell and sandbox_file_editor, which the Docker and SSH sandboxes vend. Only execution operations, meaning shell commands, code, and file reads and writes, cross into the sandbox, an environment you provision such as Docker, SSH, or a custom backend. The sandbox sends the output back to the tools: stdout, stderr, and the exit code."
+  alt="The agent runtime and the sandbox. On your infrastructure, the agent handles model calls, hooks, and state, and calls the sandbox tools, such as the shell and file editor tools that the Docker and SSH sandboxes vend. Only execution operations, meaning shell commands, code, and file reads and writes, cross into the sandbox, an environment you provision such as Docker, SSH, or a custom backend. The sandbox sends the output back to the tools: stdout, stderr, and the exit code."
 />
 
 All Sandbox implementations share the same abstract interface:
