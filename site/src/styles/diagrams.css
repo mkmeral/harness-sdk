@@ -22,15 +22,15 @@
   --dg-accent-tint: color-mix(in srgb, var(--dg-accent) 9%, var(--dg-paper));
 
   margin-block: 2rem;
-  overflow-x: auto;
 }
 
 .dg-figure svg {
   display: block;
+  /* Scale with the column: the viewBox keeps proportions, and on narrow screens the
+     whole diagram stays visible (vector, so pinch-zoom stays sharp). */
   width: 100%;
+  max-width: 100%;
   height: auto;
-  /* Below this the type gets too small to read; scroll instead of shrinking. */
-  min-width: 560px;
   font-family: var(--sl-font);
 }
 

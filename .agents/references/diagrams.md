@@ -151,8 +151,10 @@ existing `--dg-*` tokens. Don't hard-code a color in the SVG.
 
 - **Canvas:** `viewBox="0 0 720 H"` with `width="720" height="H"`. 720 matches the
   docs content column, so the SVG renders at about 1:1 and the sizes above are real
-  pixels. Leave a 16px margin and nothing outside the viewBox. Below 560px the figure
-  scrolls horizontally instead of shrinking.
+  pixels. Leave a 16px margin and nothing outside the viewBox. On narrow screens the
+  figure scales down to fit the column (readers can pinch-zoom; the SVG stays sharp), so
+  a phone shows it at roughly half size. That's one more reason to keep diagrams within
+  budget and never go below the class text sizes.
 - **4px grid:** node x, y, width, height, gaps, and padding are multiples of 4.
 - **Node sizes:** heights of 48 (name only), 56–64 (name + sub), or 80 (focal);
   widths of 104–264. Gaps between nodes of at least 24.

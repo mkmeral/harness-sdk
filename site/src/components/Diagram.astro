@@ -14,6 +14,8 @@
  *   alt="The agent loop: the model reasons, calls tools, and loops until it responds."
  * />
  */
+import { prepareDiagramSvg } from '../util/diagram-svg'
+
 interface Props {
   /** File name in src/assets/diagrams/, without the .svg extension. */
   name: string
@@ -35,18 +37,7 @@ if (!raw) {
   throw new Error(`<Diagram name="${name}">: no file at src/assets/diagrams/${name}.svg`)
 }
 
-const escapeAttr = (s: string) =>
-  s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-
-// Several diagrams can share a page, so namespace every id (markers, gradients)
-// to keep `url(#arrow)` in one SVG from resolving to another SVG's marker.
-const svg = raw
-  .replace(/<\?xml[^>]*>\s*/, '')
-  .replace(/<!--[\s\S]*?-->/g, '')
-  .replace(/\bid="([^"]+)"/g, `id="dg-${name}-$1"`)
-  .replace(/url\(#([^)]+)\)/g, `url(#dg-${name}-$1)`)
-  .replace(/href="#([^"]+)"/g, `href="#dg-${name}-$1"`)
-  .replace(/<svg\b/, `<svg role="img" aria-label="${escapeAttr(alt)}" focusable="false"`)
+const svg = prepareDiagramSvg(raw, name, alt)
 ---
 
 <figure class="dg-figure" data-diagram={name}>
