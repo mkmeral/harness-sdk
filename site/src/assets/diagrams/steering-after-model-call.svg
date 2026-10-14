@@ -28,7 +28,7 @@
 
   <rect class="dg-node" x="496" y="16" width="208" height="64" rx="6"/>
   <text class="dg-name" x="600" y="45" text-anchor="middle">Response accepted</text>
-  <text class="dg-sub" x="600" y="63" text-anchor="middle">returned as-is</text>
+  <text class="dg-sub" x="600" y="63" text-anchor="middle">kept as-is</text>
 
   <rect class="dg-node" x="496" y="104" width="208" height="64" rx="6"/>
   <text class="dg-name" x="600" y="133" text-anchor="middle">Response discarded</text>

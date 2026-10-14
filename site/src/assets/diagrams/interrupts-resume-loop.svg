@@ -9,7 +9,7 @@
   <!-- Zones -->
   <rect class="dg-zone" x="184" y="24" width="520" height="168" rx="8"/>
   <text class="dg-eyebrow" x="200" y="44">INTERRUPT AND RESUME</text>
-  <text class="dg-note" x="688" y="176" text-anchor="end">The agent loop stays stopped while you respond</text>
+  <text class="dg-note" x="688" y="176" text-anchor="end">The agent returns; you resume it with the responses</text>
 
   <!-- Edges (drawn before nodes) -->
   <path class="dg-edge" d="M160,104 H214" marker-end="url(#arrow)"/>
@@ -32,7 +32,7 @@
 
   <rect class="dg-node is-focal" x="216" y="64" width="160" height="80" rx="6"/>
   <text class="dg-name is-focal-text" x="296" y="101" text-anchor="middle">Hook or tool</text>
-  <text class="dg-sub" x="296" y="119" text-anchor="middle">raises interrupts</text>
+  <text class="dg-sub" x="296" y="119" text-anchor="middle">may raise interrupts</text>
 
   <rect class="dg-node" x="504" y="64" width="176" height="80" rx="6"/>
   <text class="dg-name" x="592" y="101" text-anchor="middle">Your application</text>

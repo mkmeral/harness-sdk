@@ -14,10 +14,6 @@ rule here.
 
 Never use ASCII art or box-drawing characters.
 
-When you touch a page that has a Mermaid diagram on a high-traffic concept, prefer
-redrawing it as a `<Diagram>`. Mermaid's auto-layout is the main reason our diagrams
-are hard to read: crossing edges, unlabeled boxes, curves that wander.
-
 ## Should this be a diagram at all?
 
 Ask: *would a reader learn more from this than from a well-written paragraph?*
@@ -55,7 +51,7 @@ matches that sentence.
 | States and the events that move between them | **State machine** | — |
 | Stacked abstraction levels | **Layer stack** | — |
 
-**Reuse before you redraw.** If an existing diagram already tells the story (both
+**Reuse before you draw.** If an existing diagram already tells the story (both
 quickstarts use `agent-loop.svg`), point to it with a `<Diagram>` and write an `alt`
 that fits the new page. Don't make a near-copy.
 
@@ -274,24 +270,6 @@ object"), not an empty box.
   steps are rectangles, decisions are diamonds with at most three exits.
 - Label every exit (`YES` / `NO`). Accent goes on the happy path or the most
   consequential decision.
-
-## Converting a Mermaid diagram
-
-**Redraw it; never transcribe it.** Mermaid gives you content and direction, not layout.
-
-1. Read the prose around the diagram. The diagram must match what the text claims, so
-   use the page's own phase names and terms.
-2. Write the one-sentence story and pick the type.
-3. Delete the following:
-   - Mermaid's duplicated actor rows.
-   - Notes that repeat the prose.
-   - Edges that are implied, such as the six return arrows of a hub that only needs
-     three calls.
-   - Nodes that always travel together.
-4. Choose the one or two focal elements.
-5. Lay it out on a blank 720-wide canvas following the geometry and connector rules.
-6. Keep labels language-neutral unless the page is single-language.
-7. Never invent components the page doesn't describe.
 
 ## Template
 

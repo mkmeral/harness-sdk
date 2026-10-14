@@ -34,6 +34,6 @@
   <text class="dg-code" x="304" y="127" text-anchor="middle">sandbox_file_editor</text>
 
   <rect class="dg-node is-focal" x="512" y="64" width="176" height="80" rx="6"/>
-  <text class="dg-name is-focal-text" x="600" y="101" text-anchor="middle">Commands and files</text>
+  <text class="dg-name is-focal-text" x="600" y="101" text-anchor="middle">Execution backend</text>
   <text class="dg-sub" x="600" y="119" text-anchor="middle">Docker, SSH, or custom</text>
 </svg>

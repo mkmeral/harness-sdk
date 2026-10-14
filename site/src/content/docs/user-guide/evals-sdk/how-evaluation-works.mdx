@@ -78,7 +78,7 @@ trajectory, evaluators score them, and detectors diagnose any failures.
 
 <Diagram
   name="evals-case-flow"
-  alt="How one case flows through an experiment, which repeats it for every case. The case (an input and what you expect back) goes to the task, which runs your agent. The task's result goes to the evaluators, which score it. When a case fails, the optional detectors read the task's trajectory and diagnose why it failed."
+  alt="How one case flows through an experiment, which repeats it for every case. The case (an input and what you expect back) goes to the task, which runs your agent. The task's result (its output and, optionally, its trajectory) goes to the evaluators, which score it. When a case fails, the optional detectors read the task's trajectory and diagnose why it failed."
 />
 
 The experiment repeats this for every case, then aggregates the scores into a

@@ -8,7 +8,7 @@
 
   <!-- Notes -->
   <text class="dg-note" x="336" y="412">Negated tools (!name) always ask a human</text>
-  <text class="dg-note" x="336" y="432">A trust response approves the tool for the session</text>
+  <text class="dg-note" x="336" y="432">Trust (opt-in) approves the tool for the session</text>
 
   <!-- Edges: the spine runs down; every "run it" exit goes right to Execute -->
   <path class="dg-edge" d="M200,64 V94" marker-end="url(#arrow)"/>

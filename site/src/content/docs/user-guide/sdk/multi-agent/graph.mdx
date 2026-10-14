@@ -617,7 +617,7 @@ builder.add_edge("worker3", "aggregator")
 
 <Diagram
   name="graph-branching"
-  alt="Branching logic. The classifier node (classifier) has two conditional edges. If its output is technical, the graph runs the technical specialist (tech_specialist) and then the technical report (tech_report). If its output is business, it runs the business specialist (business_specialist) and then the business report (business_report)."
+  alt="Branching logic. The classifier node (classifier) has two conditional edges. If its output mentions 'technical', the graph runs the technical specialist (tech_specialist) and then the technical report (tech_report). If it mentions 'business', it runs the business specialist (business_specialist) and then the business report (business_report)."
 />
 
 <Tabs>
@@ -663,7 +663,7 @@ builder.add_edge("business_specialist", "business_report")
 
 <Diagram
   name="graph-feedback-loop"
-  alt="A feedback loop. The draft writer node (draft_writer) has an edge to the reviewer node (reviewer). The reviewer has two conditional edges: if the draft needs revision, it loops back to the draft writer; if it is approved, it goes on to the publisher node (publisher). Execution limits stop the loop if the draft is never approved."
+  alt="A feedback loop. The draft writer node (draft_writer) has an edge to the reviewer node (reviewer). The reviewer has two conditional edges: if the draft needs revision, it loops back to the draft writer; if it is approved, it goes on to the publisher node (publisher). The draft writer is the entry point, set explicitly because the loop gives every node an incoming edge. Execution limits stop the loop if the draft is never approved."
 />
 
 <Tabs>
@@ -692,6 +692,9 @@ builder.add_node(publisher, "publisher")
 builder.add_edge("draft_writer", "reviewer")
 builder.add_edge("reviewer", "draft_writer", condition=needs_revision)
 builder.add_edge("reviewer", "publisher", condition=is_approved)
+
+# The loop gives draft_writer an incoming edge, so set the entry point explicitly
+builder.set_entry_point("draft_writer")
 
 # Set execution limits to prevent infinite loops
 builder.set_max_node_executions(10)  # Maximum 10 node executions total

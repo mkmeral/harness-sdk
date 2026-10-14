@@ -30,16 +30,16 @@
   <text class="dg-msg" x="172" y="121" text-anchor="middle">send a frustrated email</text>
 
   <path class="dg-edge" d="M264,168 H450" marker-end="url(#arrow)"/>
-  <text class="dg-msg" x="358" y="157" text-anchor="middle">call the email tool</text>
+  <text class="dg-msg" x="358" y="157" text-anchor="middle">email call, intercepted</text>
 
   <path class="dg-edge" d="M452,200 H476 Q484,200 484,208 V212 Q484,220 476,220 H454" marker-end="url(#arrow)"/>
   <text class="dg-msg" x="496" y="214">evaluates tone</text>
 
-  <path class="dg-edge is-accent" d="M452,256 H266" marker-end="url(#arrow-accent)"/>
-  <text class="dg-msg is-accent" x="358" y="245" text-anchor="middle">guide: cheerful tone</text>
+  <path class="dg-edge is-dashed is-accent" d="M452,256 H266" marker-end="url(#arrow-accent)"/>
+  <text class="dg-msg is-accent" x="358" y="245" text-anchor="middle">cancelled: be cheerful</text>
 
   <path class="dg-edge" d="M264,336 H450" marker-end="url(#arrow)"/>
-  <text class="dg-msg" x="358" y="325" text-anchor="middle">retry, cheerier wording</text>
+  <text class="dg-msg" x="358" y="325" text-anchor="middle">retried call, cheerier</text>
 
   <path class="dg-edge is-dashed" d="M452,372 H266" marker-end="url(#arrow)"/>
   <text class="dg-msg" x="358" y="361" text-anchor="middle">proceed</text>

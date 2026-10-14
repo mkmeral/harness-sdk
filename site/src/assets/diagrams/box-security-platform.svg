@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 256" width="720" height="256">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 272" width="720" height="272">
   <!-- Type: layer / containment. Story: the hosting platform keeps tenant environments apart; inside each one, Box keeps its trusted process outside the agent's sandbox and the tool sandboxes. -->
 
   <!-- Zones: one environment per tenant -->
@@ -6,16 +6,17 @@
   <text class="dg-eyebrow" x="32" y="36">TENANT A · ISOLATED BY THE PLATFORM</text>
   <rect class="dg-zone" x="544" y="16" width="160" height="196" rx="8"/>
   <text class="dg-eyebrow" x="560" y="36">TENANT B</text>
-  <text class="dg-note" x="16" y="240">The platform keeps tenants apart. Box supplies no isolation between them.</text>
+  <text class="dg-note" x="16" y="240">The platform keeps tenants apart; verify its guarantees.</text>
+  <text class="dg-note" x="16" y="256">Box supplies no isolation between them.</text>
 
   <!-- Sandboxes: operating-system enforced boundaries -->
-  <rect class="dg-zone is-boundary" x="32" y="132" width="220" height="56" rx="6"/>
-  <text class="dg-name" x="142" y="157" text-anchor="middle">Agent's sandbox</text>
-  <text class="dg-sub" x="142" y="175" text-anchor="middle">agent + native children</text>
+  <rect class="dg-zone is-boundary" x="32" y="132" width="184" height="56" rx="6"/>
+  <text class="dg-name" x="124" y="157" text-anchor="middle">Agent's sandbox</text>
+  <text class="dg-sub" x="124" y="175" text-anchor="middle">agent + native children</text>
 
-  <rect class="dg-zone is-boundary" x="276" y="132" width="220" height="56" rx="6"/>
-  <text class="dg-name" x="386" y="157" text-anchor="middle">Tool's sandbox</text>
-  <text class="dg-sub" x="386" y="175" text-anchor="middle">one per tool or MCP server</text>
+  <rect class="dg-zone is-boundary" x="240" y="132" width="256" height="56" rx="6"/>
+  <text class="dg-name" x="368" y="157" text-anchor="middle">Tool's sandbox</text>
+  <text class="dg-sub" x="368" y="175" text-anchor="middle">one per tool or local MCP server</text>
 
   <!-- Nodes -->
   <rect class="dg-node is-focal" x="32" y="52" width="464" height="56" rx="6"/>

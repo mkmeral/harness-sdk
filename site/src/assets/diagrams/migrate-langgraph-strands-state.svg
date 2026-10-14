@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 368" width="720" height="368">
-  <!-- Type: architecture (after half of a pair; layout matches migrate-langgraph-shared-state). Story: in Strands each node passes its output along the edges, and a session manager on the graph persists conversations separately. -->
+  <!-- Type: architecture (after half of a pair; layout matches migrate-langgraph-shared-state). Story: in Strands each node passes its output along the edges, and a session manager on the graph persists its run state separately. -->
   <defs>
     <marker id="arrow" viewBox="0 0 8 6" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto" markerUnits="userSpaceOnUse">
       <path class="dg-head" d="M0,0 L8,3 L0,6 Z"/>
@@ -11,7 +11,7 @@
 
   <!-- Zones -->
   <rect class="dg-zone" x="16" y="16" width="688" height="240" rx="8"/>
-  <text class="dg-eyebrow" x="32" y="36">STRANDS · OUTPUT FLOWS ALONG EDGES</text>
+  <text class="dg-eyebrow" x="32" y="36">STRANDS GRAPH · OUTPUT FLOWS ALONG EDGES</text>
   <text class="dg-note" x="360" y="212" text-anchor="middle">No shared state object</text>
 
   <!-- Edges: output hand-offs (the headline) -->
@@ -41,7 +41,7 @@
   <text class="dg-name" x="592" y="85" text-anchor="middle">Review</text>
   <text class="dg-sub" x="592" y="103" text-anchor="middle">own conversation</text>
 
-  <rect class="dg-node" x="272" y="288" width="176" height="64" rx="6"/>
+  <rect class="dg-node" x="248" y="288" width="224" height="64" rx="6"/>
   <text class="dg-name" x="360" y="317" text-anchor="middle">Session manager</text>
-  <text class="dg-sub" x="360" y="335" text-anchor="middle">keyed by case ID</text>
+  <text class="dg-sub" x="360" y="335" text-anchor="middle">on the graph, by case ID</text>
 </svg>

@@ -23,8 +23,8 @@
   <!-- Edge labels -->
   <rect class="dg-mask is-on-zone" x="416" y="68" width="64" height="12" rx="2"/>
   <text class="dg-label" x="448" y="77" text-anchor="middle">RESPONSE</text>
-  <rect class="dg-mask is-on-zone" x="416" y="98" width="64" height="12" rx="2"/>
-  <text class="dg-label" x="448" y="107.5" text-anchor="middle">FEEDBACK</text>
+  <rect class="dg-mask is-on-zone" x="400" y="98" width="96" height="12" rx="2"/>
+  <text class="dg-label" x="448" y="107.5" text-anchor="middle">FAILED: RETRY</text>
   <text class="dg-label" x="560" y="215" text-anchor="end">OUT OF BUDGET</text>
   <text class="dg-label is-accent" x="656" y="215">PASSED</text>
 

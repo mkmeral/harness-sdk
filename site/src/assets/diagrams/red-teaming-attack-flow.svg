@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 328" width="720" height="328">
-  <!-- Type: loop (two-station) feeding a judge. Story: an attack strategy trades turns with your agent until it decides to stop, then an LLM judge scores the whole conversation for a breach. -->
+  <!-- Type: loop (two-station) feeding a judge. Story: an attack strategy trades turns with your agent until it decides to stop, then an LLM judge scores the whole conversation and tool trace for a breach. -->
   <defs>
     <marker id="arrow" viewBox="0 0 8 6" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto" markerUnits="userSpaceOnUse">
       <path class="dg-head" d="M0,0 L8,3 L0,6 Z"/>
@@ -23,7 +23,8 @@
   <text class="dg-label" x="444" y="69" text-anchor="middle">ATTACK TURN</text>
   <rect class="dg-mask is-on-zone" x="420" y="92" width="48" height="12" rx="2"/>
   <text class="dg-label" x="444" y="101" text-anchor="middle">REPLY</text>
-  <text class="dg-label" x="308" y="212">CONVERSATION</text>
+  <text class="dg-label" x="308" y="204">CONVERSATION</text>
+  <text class="dg-label" x="308" y="218">+ TOOL TRACE</text>
   <rect class="dg-mask" x="404" y="252" width="88" height="12" rx="2"/>
   <text class="dg-label" x="448" y="261" text-anchor="middle">SCORE 0.0–1.0</text>
 

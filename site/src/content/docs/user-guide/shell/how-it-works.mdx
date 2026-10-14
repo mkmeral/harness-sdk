@@ -42,7 +42,7 @@ Strands Shell flows through the Kernel, the single mediation boundary.
 
 <Diagram
   name="shell-kernel-and-engine"
-  alt="Your agent code calls Strands Shell through MCP, the Python API, or the Node.js API, and reaches the shell engine, which holds the parser, builtins, and Lua. Every effect the engine has goes through the Kernel, the mediation boundary, which has four parts: the VFS, an isolated filesystem; Network, an SSRF guard plus an allowlist; Credentials, injected per URL; and Limits on timeout, output, and file descriptors. All of it runs in your process, with no container or VM."
+  alt="Your agent code calls Strands Shell through MCP, the Python API, or the Node.js API, and reaches the shell engine, which holds the parser, builtins, commands, and Lua. Every effect the engine has goes through the Kernel, the mediation boundary, which has four parts: the VFS, an isolated filesystem; Network, an SSRF guard plus an allowlist; Credentials, injected per URL; and Limits on timeout, output, and file descriptors. All of it runs in your process, with no container or VM."
 />
 
 The engine parses and runs shell syntax. When a command needs to touch the outside

@@ -34,7 +34,7 @@
 
   <rect class="dg-node is-focal" x="496" y="48" width="200" height="80" rx="6"/>
   <text class="dg-name is-focal-text" x="596" y="85" text-anchor="middle">Evaluators</text>
-  <text class="dg-sub" x="596" y="103" text-anchor="middle">score each result</text>
+  <text class="dg-sub" x="596" y="103" text-anchor="middle">score output + trajectory</text>
 
   <rect class="dg-node is-optional" x="508" y="208" width="176" height="64" rx="6"/>
   <text class="dg-name" x="596" y="237" text-anchor="middle">Detectors</text>

@@ -96,7 +96,7 @@ agent("Calculate 2 + 2 and print the result")
 
 ### What Happens on Attach
 
-When you attach a plugin to an agent, the following happens:
+When you create a plugin and attach it to an agent, the following happens:
 
 <Tabs>
 <Tab label="Python">
@@ -120,7 +120,7 @@ When you attach a plugin to an agent, the following happens:
 
 <Diagram
   name="custom-plugins-attach"
-  alt="What happens when you attach a plugin to an agent. The plugin's init method runs first and can set up the agent's primitives: its model, system prompt, and messages. The plugin's hooks go into the agent's hook registry, which fires them on lifecycle events, and its tools go last into the agent's tool registry, where the model can call them."
+  alt="What happens when you attach a plugin to an agent. The plugin's init method runs first and can set up the agent's primitives: its model, system prompt, and messages. The plugin's hooks go into the agent's hook registry, which fires them on lifecycle events, and its tools go last into the agent's tool registry, where the model can call them. In TypeScript there is no separate hook step: the init method registers hooks itself with agent.addHook()."
 />
 
 ### Registering Hooks in Plugins

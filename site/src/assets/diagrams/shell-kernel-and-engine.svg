@@ -17,21 +17,22 @@
   <text class="dg-note" x="704" y="408" text-anchor="end">Runs in your process: no container, no VM</text>
 
   <!-- Edges -->
-  <path class="dg-edge" d="M176,222 H222" marker-end="url(#arrow)"/>
-  <path class="dg-edge is-accent" d="M392,222 H454" marker-end="url(#arrow-accent)"/>
+  <path class="dg-edge" d="M176,224 H222" marker-end="url(#arrow)"/>
+  <path class="dg-edge is-accent" d="M392,224 H454" marker-end="url(#arrow-accent)"/>
 
   <!-- Edge labels -->
-  <rect class="dg-mask is-on-zone" x="400" y="202" width="48" height="12" rx="2"/>
-  <text class="dg-label is-accent" x="424" y="211" text-anchor="middle">EFFECTS</text>
+  <rect class="dg-mask is-on-zone" x="400" y="204" width="48" height="12" rx="2"/>
+  <text class="dg-label is-accent" x="424" y="213" text-anchor="middle">EFFECTS</text>
 
   <!-- Nodes -->
-  <rect class="dg-node is-input" x="16" y="190" width="160" height="64" rx="6"/>
-  <text class="dg-name" x="96" y="219" text-anchor="middle">Your agent code</text>
-  <text class="dg-sub" x="96" y="237" text-anchor="middle">MCP, Python, Node.js</text>
+  <rect class="dg-node is-input" x="16" y="192" width="160" height="64" rx="6"/>
+  <text class="dg-name" x="96" y="221" text-anchor="middle">Your agent code</text>
+  <text class="dg-sub" x="96" y="239" text-anchor="middle">MCP, Python, Node.js</text>
 
-  <rect class="dg-node" x="224" y="190" width="168" height="64" rx="6"/>
-  <text class="dg-name" x="308" y="219" text-anchor="middle">Shell engine</text>
-  <text class="dg-sub" x="308" y="237" text-anchor="middle">parser, builtins, Lua</text>
+  <rect class="dg-node" x="224" y="184" width="168" height="80" rx="6"/>
+  <text class="dg-name" x="308" y="213" text-anchor="middle">Shell engine</text>
+  <text class="dg-sub" x="308" y="231" text-anchor="middle">parser, builtins,</text>
+  <text class="dg-sub" x="308" y="247" text-anchor="middle">commands, Lua</text>
 
   <rect class="dg-node" x="472" y="92" width="200" height="56" rx="6"/>
   <text class="dg-name" x="572" y="117" text-anchor="middle">VFS</text>

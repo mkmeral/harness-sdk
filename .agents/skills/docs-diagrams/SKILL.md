@@ -1,6 +1,6 @@
 ---
 name: docs-diagrams
-description: Design, draw, or redraw diagrams for the Strands docs site as theme-aware SVGs rendered by the <Diagram> component. Use when a docs page needs a diagram, when converting a Mermaid diagram to SVG, or when reviewing a diagram's clarity and style. Also triggers on "draw a diagram", "add a diagram", "redraw this mermaid", "make this diagram clearer", "diagram for X".
+description: Design and draw diagrams for the Strands docs site as theme-aware SVGs rendered by the <Diagram> component. Use when a docs page needs a diagram, or when reviewing a diagram's clarity and style. Also triggers on "draw a diagram", "add a diagram", "make this diagram clearer", "diagram for X".
 ---
 
 # Docs Diagrams
@@ -11,7 +11,7 @@ Create clear, editorial diagrams for the docs in the Strands brand. The rules ar
 ## Inputs
 
 - **Page**: the `.mdx` file the diagram belongs to (required)
-- **Source**: an existing Mermaid block to redraw, or the concept to illustrate
+- **Source**: the concept to illustrate
 
 ## Workflow
 
@@ -48,8 +48,7 @@ If a table or paragraph would do the job better, say so and don't draw.
    <Diagram name="concept-name" alt="Full prose description of the diagram." />
    ```
 
-   Put the import after the frontmatter, with the page's other imports. Replace the
-   Mermaid fence entirely; don't keep both.
+   Put the import after the frontmatter, with the page's other imports.
 
 ### 4. Look at it
 
@@ -91,7 +90,6 @@ Tell the user:
 
 - Don't run several edits on the same file in parallel. They race, and one silently
   overwrites the other. Edit a file sequentially, then re-read it.
-- Don't transcribe a Mermaid layout. Redraw from the story.
 - Don't hard-code hex colors, fonts, or `style=` attributes. Add a class to
   `site/src/styles/diagrams.css` if a role is missing.
 - Don't add nodes or components the page doesn't describe.

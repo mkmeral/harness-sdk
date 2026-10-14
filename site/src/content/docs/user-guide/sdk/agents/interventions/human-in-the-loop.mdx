@@ -20,7 +20,7 @@ The handler uses the [`confirm` action](./index.mdx) to pause for human input. I
 
 <Diagram
   name="human-in-the-loop-approval-flow"
-  alt="How the handler decides on a tool call. If the tool is allowed or already trusted, it executes. Otherwise, if a classifier is configured and rates the call safe, it executes. If the classifier rates it risky, or there is no classifier, a human is asked: if they approve, the tool executes; if not, the call is cancelled. Negated tools (!name) always ask a human, and a trust response approves the tool for the rest of the session."
+  alt="How the handler decides on a tool call. If the tool is allowed or already trusted, it executes. Otherwise, if a classifier is configured and rates the call safe, it executes. If the classifier rates it risky, or there is no classifier, a human is asked: if they approve, the tool executes; if not, the call is cancelled. Negated tools (!name) always ask a human, and, when trust is enabled, a trust response approves the tool for the rest of the session."
 />
 
 ## Usage

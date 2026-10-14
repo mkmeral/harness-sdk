@@ -84,7 +84,7 @@ When you want the handler to validate the model's output before it reaches the u
 
 <Diagram
   name="steering-after-model-call"
-  alt="Steering after a model response. The model's response reaches the steering handler on AfterModelCallEvent, and the handler picks one of two outcomes. Proceed: the response is accepted and returned as-is. Guide: the response is discarded and the model retries with the guidance injected into the conversation."
+  alt="Steering after a model response. The model's response reaches the steering handler on AfterModelCallEvent, and the handler picks one of two outcomes. Proceed: the response is accepted as-is. Guide: the response is discarded and the model retries with the guidance injected into the conversation."
 />
 
 The handler returns one of two actions:
@@ -167,7 +167,7 @@ Attach the handler through the interventions framework:
 
 <Diagram
   name="steering-llm-handler-sequence"
-  alt="A typical run of the cheerful-email example, in two phases. First attempt: the user asks the agent to send a frustrated email; the agent calls the email tool; the LLM steering handler evaluates the message's tone against its system prompt and returns guide, so the call is cancelled and the agent receives guidance toward a cheerful tone. Retry: the agent calls the email tool again with cheerier wording; the handler returns proceed; the email tool sends the email; and the agent gives the user its final response."
+  alt="A typical run of the cheerful-email example, in two phases. First attempt: the user asks the agent to send a frustrated email; the agent calls the email tool and the LLM steering handler intercepts the call. The handler evaluates the message's tone against its system prompt and returns guide, so the call is cancelled and the agent receives guidance toward a cheerful tone. Retry: the agent calls the email tool again with cheerier wording; the handler returns proceed; the email tool sends the email; and the agent gives the user its final response."
 />
 
 For best practices on writing steering prompts, see the [Agent Standard Operating Procedures (SOP)](https://github.com/strands-agents/agent-sop) framework.

@@ -30,7 +30,7 @@
 
   <!-- Messages: time flows down, every arrow is horizontal -->
   <path class="dg-edge" d="M80,132 H254" marker-end="url(#arrow)"/>
-  <text class="dg-msg" x="168" y="121" text-anchor="middle">configure skill paths</text>
+  <text class="dg-msg" x="168" y="121" text-anchor="middle">configure skill sources</text>
 
   <path class="dg-edge" d="M80,168 H462" marker-end="url(#arrow)"/>
   <text class="dg-msg" x="168" y="157" text-anchor="middle">register the plugin</text>

@@ -16,12 +16,12 @@
   <path class="dg-edge" d="M208,184 H232 Q240,184 240,192 V240 Q240,248 248,248 H382" marker-end="url(#arrow)"/>
 
   <!-- Edge labels -->
-  <rect class="dg-mask" x="264" y="60" width="80" height="12" rx="2"/>
-  <text class="dg-label" x="304" y="69" text-anchor="middle">INIT METHOD</text>
-  <rect class="dg-mask" x="282" y="144" width="44" height="12" rx="2"/>
-  <text class="dg-label" x="304" y="153" text-anchor="middle">HOOKS</text>
-  <rect class="dg-mask" x="282" y="228" width="44" height="12" rx="2"/>
-  <text class="dg-label" x="304" y="237" text-anchor="middle">TOOLS</text>
+  <rect class="dg-mask" x="250" y="60" width="108" height="12" rx="2"/>
+  <text class="dg-label" x="304" y="69" text-anchor="middle">1 · INIT METHOD</text>
+  <rect class="dg-mask" x="270" y="144" width="68" height="12" rx="2"/>
+  <text class="dg-label" x="304" y="153" text-anchor="middle">2 · HOOKS</text>
+  <rect class="dg-mask" x="270" y="228" width="68" height="12" rx="2"/>
+  <text class="dg-label" x="304" y="237" text-anchor="middle">3 · TOOLS</text>
 
   <!-- Nodes -->
   <rect class="dg-node is-focal" x="32" y="124" width="176" height="80" rx="6"/>

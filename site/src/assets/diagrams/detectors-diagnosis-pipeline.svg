@@ -37,6 +37,7 @@
   <text class="dg-code" x="588" y="87" text-anchor="middle">analyze_root_cause</text>
 
   <rect class="dg-node is-focal" x="492" y="192" width="192" height="80" rx="6"/>
-  <text class="dg-name is-focal-text" x="588" y="229" text-anchor="middle">Diagnosis</text>
-  <text class="dg-code" x="588" y="247" text-anchor="middle">DiagnosisResult</text>
+  <text class="dg-name is-focal-text" x="588" y="221" text-anchor="middle">Diagnosis</text>
+  <text class="dg-code" x="588" y="239" text-anchor="middle">DiagnosisResult</text>
+  <text class="dg-sub" x="588" y="255" text-anchor="middle">+ fix recommendations</text>
 </svg>

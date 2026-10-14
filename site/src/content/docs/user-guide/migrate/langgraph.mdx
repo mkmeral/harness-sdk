@@ -26,7 +26,7 @@ In LangGraph a node is a plain function you write. It takes the state, does one 
 
 <Diagram
   name="migrate-langgraph-function-nodes"
-  alt="In LangGraph, each node is a function you write. Three nodes run in a line, research, then analysis, then review, and each is a plain function that takes the state, such as research(state), runs once, and hands control back to the graph."
+  alt="In LangGraph, each node is a function you write. Three nodes run in a line, research, then analysis, then review, and each is a plain function that takes the state, such as research(state), does one thing, returns an update, and hands control back to the graph. There is no loop inside a node."
 />
 
 In Strands a node is an agent that runs its own agent loop. When the node executes it can reason, call tools, and iterate until it's done, all on its own, before handing off to the next node. A single Strands node therefore contains the kind of loop you would have written inside a LangGraph function.
@@ -44,14 +44,14 @@ State works differently. In LangGraph you define one shared state object, and ev
 
 <Diagram
   name="migrate-langgraph-shared-state"
-  alt="In LangGraph, state is one shared object. The research, analysis, and review functions each take the state as input and return updates that are merged into a single shared CaseState object, and a checkpointer such as SqliteSaver snapshots that object to persist it."
+  alt="In LangGraph, state is one shared object. The research, analysis, and review functions each read the state and return updates that are merged back into a single shared CaseState object, and a checkpointer such as SqliteSaver snapshots that object to persist it."
 />
 
 Strands has no shared state object. Each node passes its output to the nodes that depend on it, and conversation state is persisted separately by a session manager attached to the orchestrator. Instead of one graph-wide state dict, each agent holds its own conversation, and the session manager handles persistence and resumption across runs.
 
 <Diagram
   name="migrate-langgraph-strands-state"
-  alt="In Strands, output flows along the edges and there is no shared state object. Research passes its output to analysis, and analysis passes its output to review; each agent keeps its own conversation. A session manager attached to the graph, keyed by the case ID, persists those conversations separately."
+  alt="In Strands, output flows along the edges and there is no shared state object. Research passes its output to analysis, and analysis passes its output to review; each agent keeps its own conversation. A session manager attached to the graph, keyed by the case ID, persists the graph's run state separately."
 />
 
 Practically, you stop modeling state as one big typed object and let each agent carry its own context. The cutover is clean: your public entrypoint and external IDs stay the same, and there's no checkpoint format to translate, since the session manager rebuilds state as runs execute. Any in-flight conversation from the old system simply re-creates on its next call under the same ID.
@@ -98,7 +98,7 @@ The example for this guide is a small three-stage graph for handling a case: a r
 
 <Diagram
   name="migrate-langgraph-example-graph"
-  alt="The example graph. A case, made of an ID and a prompt, goes to the research stage, which gathers the facts. Research feeds the analysis stage, which weighs the options, and analysis feeds the review stage, which recommends a decision."
+  alt="The example graph. A case prompt goes to the research stage, which gathers the facts. Research feeds the analysis stage, which weighs the options, and analysis feeds the review stage, which recommends a decision."
 />
 
 The LangGraph version wires three node functions into a `StateGraph` and compiles it with a checkpointer, keyed per case by `thread_id`:
