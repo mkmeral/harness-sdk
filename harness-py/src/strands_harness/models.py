@@ -6,9 +6,9 @@ id, or ``None`` for the harness default. Every provider uses its real model ids 
 value regardless of provider.
 
 Prompt caching is requested via ``caching`` and reaches the provider one of two ways: the harness
-configures Bedrock and Anthropic direct (cache points plus cached tool definitions), while OpenAI,
-Gemini, bedrock-mantle, and litellm cache automatically server-side (Gemini on models 2.5 and
-newer; litellm through its OpenAI-compatible backend). Only a pre-built ``Model`` or ``ModelRouter``
+configures Bedrock, Anthropic direct, and OpenAI through the SDK cache config. Gemini,
+bedrock-mantle, and litellm cache automatically server-side (Gemini on models 2.5 and newer;
+litellm through its OpenAI-compatible backend). Only a pre-built ``Model`` or ``ModelRouter``
 instance can't be honored (its provider is unknown), so a warning is logged.
 """
 
@@ -223,7 +223,7 @@ def _anthropic(model_id: str, effort: str | None, web_search: bool, caching: boo
 
 
 def _openai(model_id: str, effort: str | None, web_search: bool, caching: bool) -> Model:
-    # ``caching`` is unused: OpenAI caches server-side with no opt-in.
+    from strands.models import CacheConfig
     from strands.models.openai_responses import OpenAIResponsesModel
 
     params: dict[str, Any] = {}
@@ -232,7 +232,11 @@ def _openai(model_id: str, effort: str | None, web_search: bool, caching: bool) 
     # The Responses API merges built-in tools carried in ``params`` with the agent's function tools.
     if web_search:
         params["tools"] = [{"type": "web_search"}]
-    return OpenAIResponsesModel(model_id=model_id, **({"params": params} if params else {}))
+    return OpenAIResponsesModel(
+        model_id=model_id,
+        **({"cache_config": CacheConfig(strategy="auto")} if caching else {}),
+        **({"params": params} if params else {}),
+    )
 
 
 def _bedrock_mantle(model_id: str, effort: str | None, web_search: bool, caching: bool) -> Model:
