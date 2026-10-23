@@ -57,7 +57,7 @@ async def test_render_includes_env_agents_md_and_nearby_links():
     sandbox = _FakeSandbox({"AGENTS.md": "root agents doc"}, _repo_tree())
     out = await env._render(_FakeAgent(sandbox), {})
     assert out is not None
-    # Platform and cwd come from the sandbox probe (uname/$PWD), not the host process.
+    # Platform and cwd come from the sandbox probe (uname/pwd), not the host process.
     assert "<environment>" in out and "Platform: Linux" in out and "Date:" in out
     assert "Working directory: /work" in out
     # The working-directory AGENTS.md is shown in full...
@@ -92,7 +92,7 @@ async def test_oversize_agents_md_is_truncated():
 
 
 async def test_probe_failure_omits_platform_and_working_directory():
-    # cwd=None makes the fake shell raise, so both sandbox probes (uname/$PWD) fail; only the date
+    # cwd=None makes the fake shell raise, so both sandbox probes (uname/pwd) fail; only the date
     # survives, and the block still renders.
     sandbox = _FakeSandbox({"AGENTS.md": "x"}, {".": [FileInfo("AGENTS.md", False)]}, cwd=None)
     out = await env._render(_FakeAgent(sandbox), {})

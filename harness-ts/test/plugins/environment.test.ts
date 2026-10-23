@@ -76,7 +76,7 @@ describe('EnvironmentContext', () => {
     const sandbox = new FakeSandbox({ 'AGENTS.md': 'root agents doc' }, repoTree())
     const out = await renderEnvironment(fakeAgent(sandbox), {})
     expect(out).toContain('<environment>')
-    // Platform and cwd come from the sandbox probe (uname/$PWD), not the host process.
+    // Platform and cwd come from the sandbox probe (uname/pwd), not the host process.
     expect(out).toContain('Platform: Linux')
     expect(out).toContain('Date:')
     expect(out).toContain('Working directory: /work')
