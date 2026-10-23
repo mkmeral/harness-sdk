@@ -146,6 +146,31 @@ describe('Responses durable prompt caching', () => {
     expect(JSON.stringify(req)).not.toContain('prompt_cache_breakpoint')
   })
 
+  it('joins a multi-text tool result into one checkpointed block', () => {
+    const result = new ToolResultBlock({
+      toolUseId: 'a',
+      status: 'success',
+      content: [new TextBlock('one'), new TextBlock('two')],
+    })
+    expect(input([new Message({ role: 'user', content: [result] })])).toEqual([
+      {
+        type: 'function_call_output',
+        call_id: 'a',
+        output: [{ type: 'input_text', text: 'one\ntwo', prompt_cache_breakpoint: marker }],
+      },
+    ])
+  })
+
+  it('uses the array tool-output form for a tool result in the temporary tail', () => {
+    const result = new ToolResultBlock({ toolUseId: 'a', status: 'success', content: [new TextBlock('out')] })
+    const msg = new Message({ role: 'user', content: [new TextBlock('durable'), result] })
+    expect(input([msg], { dynamicTrailingBlocks: 1 })).toContainEqual({
+      type: 'function_call_output',
+      call_id: 'a',
+      output: [{ type: 'input_text', text: 'out' }],
+    })
+  })
+
   it('keeps an empty tool result as a string output', () => {
     const result = new ToolResultBlock({ toolUseId: 'a', status: 'success', content: [] })
     const msg = new Message({ role: 'user', content: [result, new TextBlock('next')] })

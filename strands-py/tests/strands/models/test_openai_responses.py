@@ -2782,3 +2782,33 @@ async def test_message_cache_structured_output_works_with_older_client_parse_sig
     assert events[-1]["output"].name == "ok"
     assert calls[0]["extra_body"] == {"prompt_cache_options": {"mode": "explicit"}}
     assert calls[0]["input"][0]["content"][0]["prompt_cache_breakpoint"] == {"mode": "explicit"}
+
+
+def test_message_cache_joins_multi_text_tool_result_into_one_block():
+    model = OpenAIResponsesModel(model_id="gpt-5.6", cache_config=CacheConfig())
+    result = {"toolUseId": "c1", "status": "success", "content": [{"text": "one"}, {"json": {"n": 2}}]}
+    request = model._format_request([{"role": "user", "content": [{"toolResult": result}]}])
+
+    assert request["input"] == [
+        {
+            "type": "function_call_output",
+            "call_id": "c1",
+            "output": [
+                {"type": "input_text", "text": 'one\n{"n": 2}', "prompt_cache_breakpoint": {"mode": "explicit"}}
+            ],
+        }
+    ]
+
+
+def test_message_cache_dynamic_tool_result_uses_array_output():
+    model = OpenAIResponsesModel(model_id="gpt-5.6", cache_config=CacheConfig())
+    result = {"toolUseId": "c1", "status": "success", "content": [{"text": "out"}]}
+    request = model._format_request(
+        [{"role": "user", "content": [{"text": "durable"}, {"toolResult": result}]}], dynamic_trailing_blocks=1
+    )
+
+    assert request["input"][-1] == {
+        "type": "function_call_output",
+        "call_id": "c1",
+        "output": [{"type": "input_text", "text": "out"}],
+    }

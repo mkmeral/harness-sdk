@@ -62,6 +62,7 @@ export function formatCacheableResponsesMessages(
     input.push(...items)
     if (dynamicCount > 0) {
       const dynamic = format([new Message({ role: 'user', content: message.content.slice(boundary) })])
+      normalizeToolOutputs(dynamic)
       if (items.length > 0) appendDynamicContent(input, dynamic)
       else input.push(...dynamic)
     }

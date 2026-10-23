@@ -922,7 +922,7 @@ class OpenAIResponsesModel(Model):
 
         Args:
             tool_result: Tool result collected from a tool execution.
-            content_array: Keep text outputs as content blocks so they can carry cache checkpoints.
+            content_array: Send text outputs as one content block so it can carry a cache checkpoint.
 
         Returns:
             OpenAI compatible tool message.
@@ -959,10 +959,13 @@ class OpenAIResponsesModel(Model):
 
         # Return array if has media content, otherwise join as string for simpler text-only cases
         output: list[dict[str, Any]] | str
-        if has_media or (content_array and output_parts):
+        if has_media:
             output = output_parts
         else:
             output = "\n".join(part.get("text", "") for part in output_parts) if output_parts else ""
+            if content_array and output:
+                # One text block, matching the string form, so it can carry a cache checkpoint.
+                output = [{"type": "input_text", "text": output}]
 
         return {
             "type": "function_call_output",
