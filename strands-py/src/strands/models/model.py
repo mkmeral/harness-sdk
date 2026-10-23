@@ -152,9 +152,11 @@ class CacheConfig:
             the same static system prefix hit the cache. A TTL string (e.g. "1h") sets this section's own
             duration and is honored as written; True derives the duration from ``ttl``; False disables it.
             A hand-placed system cache point is honored rather than doubled.
-        messages_ttl: Whether to place message cache checkpoints on supported OpenAI Responses models.
-            False disables automatic message checkpoints; True enables them. Duration strings also
-            enable checkpoints, but their lifetime is controlled by the provider's native cache options.
+        messages_ttl: Cache the conversation prefix, placing checkpoints on durable user content. A TTL
+            string (e.g. "1h") sets this section's own duration; True derives the duration from ``ttl``;
+            False disables it. Mirrors the TypeScript ``messagesTTL``. Currently read only by
+            ``OpenAIResponsesModel`` (GPT-5.6+), where any non-False value enables checkpoints and their
+            lifetime comes from ``params.prompt_cache_options.ttl``.
         cache_key: Stable identity a prompt-cache-routing provider (OpenAI, LiteLLM, Mistral) uses as its
             cache key. Left unset, it is derived per request as ``strands-<session_id>`` if the agent has
             a session manager, so repeat runs of a session share a cache prefix with no key management.
