@@ -109,7 +109,10 @@ describe('OpenAI harness prompt caching (offline)', () => {
         userInput('First question', temporaryText(firstTodos[0]!.content), temporaryText('Date: 2030-01-01')),
       ])
       expect(JSON.stringify(requests[0]?.input)).toContain(projectDoc)
-      expect(JSON.stringify(requests[0]?.input)).toContain(`Working directory: ${process.cwd()}`)
+      // Compare in serialized form: Windows paths contain backslashes, which JSON escapes.
+      expect(JSON.stringify(requests[0]?.input)).toContain(
+        JSON.stringify(`Working directory: ${process.cwd()}`).slice(1, -1)
+      )
       const firstHistory = agent.messages.map((message) => message.toJSON())
       expect(firstHistory).toEqual([
         { role: 'user', content: [{ text: 'First question' }], trackingId: expect.any(String) },
