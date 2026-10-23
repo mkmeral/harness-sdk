@@ -1,6 +1,7 @@
 """Offline coverage of harness injectors through the real OpenAI Responses request formatter."""
 
 import json
+import os
 from copy import deepcopy
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
@@ -126,7 +127,7 @@ async def test_openai_injections_preserve_durable_cache_boundaries(monkeypatch, 
         else:
             assert len(environment) == 1
             assert project_context in environment[0]["text"]
-            assert "Working directory:" in environment[0]["text"]
+            assert f"Working directory: {os.getcwd()}\n" in environment[0]["text"]
             assert "Date:" in environment[0]["text"]
         assert all("prompt_cache_breakpoint" not in block for block in reminders)
         boundary = max(i for i, block in enumerate(blocks) if "prompt_cache_breakpoint" in block)
