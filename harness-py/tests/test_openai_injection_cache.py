@@ -5,6 +5,7 @@ from copy import deepcopy
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
 from strands import tool
 from strands.models import CacheConfig, openai_responses
 
@@ -37,6 +38,8 @@ async def test_openai_injections_preserve_durable_cache_boundaries(monkeypatch, 
     # Only the OpenAI network client is mocked: resolution, injection, tool execution,
     # streaming conversion, and the local environment reader all run normally.
     monkeypatch.chdir(tmp_path)
+    # Without a key, a request that escapes the client mock fails instead of reaching OpenAI.
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     project_context = "Offline project guidance: keep transient context out of history."
     (tmp_path / "AGENTS.md").write_text(project_context)
     client = AsyncMock()
@@ -129,6 +132,7 @@ async def test_openai_injections_preserve_durable_cache_boundaries(monkeypatch, 
             assert "Working directory:" in environment[0]["text"]
             assert "Date:" in environment[0]["text"]
         assert all("prompt_cache_breakpoint" not in block for block in reminders)
+        assert any("prompt_cache_breakpoint" in block for block in blocks), blocks
         boundary = max(i for i, block in enumerate(blocks) if "prompt_cache_breakpoint" in block)
         assert blocks[boundary]["prompt_cache_breakpoint"] == {"mode": "explicit"}
         assert all(boundary < blocks.index(block) for block in reminders)
@@ -175,3 +179,48 @@ async def test_openai_injections_preserve_durable_cache_boundaries(monkeypatch, 
     assert all(prompt in durable for prompt in prompts)
     assert "Local status: ready." in durable
     assert "call_status" in durable
+
+
+@pytest.mark.parametrize("model_id", ["gpt-6-sol", "gpt-4.1"])
+@pytest.mark.parametrize("caching", [True, False])
+async def test_openai_session_cache_key_follows_caching(monkeypatch, tmp_path, model_id, caching):
+    # With caching on, every OpenAI model gets the per-session routing key; only GPT-5.6+ also gets
+    # checkpoints. With caching off, the harness sends no cache fields at all.
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    client = AsyncMock()
+    client_cls = MagicMock()
+    client_cls.return_value.__aenter__.return_value = client
+    monkeypatch.setattr(openai_responses.openai, "AsyncOpenAI", client_cls)
+    requests = []
+
+    async def respond(**request):
+        wire_request = deepcopy(request)
+        wire_request.update(wire_request.pop("extra_body", {}) or {})
+        requests.append(wire_request)
+        return _response("resp_1", SimpleNamespace(type="response.output_text.delta", delta="Done."))
+
+    client.responses.create.side_effect = respond
+    agent = create_harness(
+        model=f"openai/{model_id}",
+        caching=caching,
+        session={"id": "cache-key-test", "dir": str(tmp_path / "sessions")},
+        memory=False,
+        skills=False,
+        builtin_tools=[],
+        builtin_plugins=[],
+        context_manager=False,
+        background_tasks=False,
+        callback_handler=None,
+    )
+    await agent.invoke_async("Hello.")
+
+    assert len(requests) == 1
+    request = requests[0]
+    if caching:
+        assert request["prompt_cache_key"] == "strands-cache-key-test"
+        assert ("prompt_cache_options" in request) is (model_id == "gpt-6-sol")
+    else:
+        assert "prompt_cache_key" not in request
+        assert "prompt_cache_options" not in request
+        assert "prompt_cache_breakpoint" not in json.dumps(request["input"])

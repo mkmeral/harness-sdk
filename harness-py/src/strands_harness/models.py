@@ -300,8 +300,8 @@ class Provider(NamedTuple):
     bedrock-mantle to its GPT-5/GPT-6 models. Bedrock Converse has no mechanism.
 
     ``caching`` marks providers where prompt caching is in effect when requested, whether or not
-    the harness configures anything: Bedrock and Anthropic direct (the harness sets cache points and tool caching)
-    plus OpenAI, Gemini, bedrock-mantle, and litellm (automatic server-side). Only a pre-built
+    the harness configures anything: Bedrock, Anthropic direct, and OpenAI (the harness passes SDK cache config)
+    plus Gemini, bedrock-mantle, and litellm (automatic server-side). Only a pre-built
     ``Model`` instance can't be honored (its provider is unknown), so the factory warns there.
     """
 

@@ -102,6 +102,7 @@ describe('OpenAI harness prompt caching (offline)', () => {
           contextManager: false,
           backgroundTasks: false,
           interventions: 'off',
+          printer: false,
         })
         expect(agent.model).toBeInstanceOf(OpenAIModel)
         // Do not pass caching: this also exercises the harness resolver's default opt-in.
@@ -207,4 +208,56 @@ describe('OpenAI harness prompt caching (offline)', () => {
       }
     }
   )
+
+  // With caching on, every OpenAI model gets the per-session routing key; only GPT-5.6+ also gets
+  // checkpoints. With caching off, the harness sends no cache fields at all.
+  it.each([
+    { modelId: 'gpt-6-sol', caching: true },
+    { modelId: 'gpt-4.1', caching: true },
+    { modelId: 'gpt-6-sol', caching: false },
+    { modelId: 'gpt-4.1', caching: false },
+  ])('sends the session cache key for $modelId when caching is $caching', async ({ modelId, caching }) => {
+    vi.stubEnv('OPENAI_API_KEY', 'offline-test-key')
+    vi.stubEnv('OTEL_TRACES_EXPORTER', 'none')
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => {
+        throw new Error('Network access is forbidden in the offline cache regression')
+      })
+    )
+    const requests: Record<string, unknown>[] = []
+    vi.spyOn(Responses.prototype, 'create').mockImplementation((request) => {
+      requests.push(globalThis.structuredClone(request) as unknown as Record<string, unknown>)
+      return responseStream('response_1', 'Done') as unknown as ReturnType<Responses['create']>
+    })
+    const dir = mkdtempSync(join(tmpdir(), 'harness-openai-cache-key-'))
+    try {
+      const agent = await createHarness({
+        model: `openai/${modelId}`,
+        caching,
+        session: { id: 'cache-key-test', dir },
+        builtinTools: [],
+        builtinPlugins: [],
+        memory: false,
+        skills: false,
+        contextManager: false,
+        backgroundTasks: false,
+        interventions: 'off',
+        printer: false,
+      })
+      await agent.invoke('Hello')
+      expect(requests).toHaveLength(1)
+      const request = requests[0]!
+      if (caching) {
+        expect(request.prompt_cache_key).toBe('strands-cache-key-test')
+        expect('prompt_cache_options' in request).toBe(modelId === 'gpt-6-sol')
+      } else {
+        expect(request).not.toHaveProperty('prompt_cache_key')
+        expect(request).not.toHaveProperty('prompt_cache_options')
+        expect(JSON.stringify(request.input)).not.toContain('prompt_cache_breakpoint')
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
 })
