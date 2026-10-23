@@ -99,7 +99,9 @@ describe('EnvironmentContext', () => {
     try {
       const out = await renderEnvironment(await createHarness({ builtinPlugins: [] }), {})
       const line = out.split(/\r?\n/).find((l) => l.startsWith('Working directory: '))
-      expect(line).toMatch(new RegExp(`[\\\\/]${basename(dir)}$`))
+      expect(line, out).toBeDefined()
+      const name = basename(dir).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      expect(line, out).toMatch(new RegExp(`[\\\\/]${name}$`))
     } finally {
       process.chdir(cwd)
       rmSync(dir, { recursive: true, force: true })

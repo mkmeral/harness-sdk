@@ -1,7 +1,6 @@
 """Tests for the EnvironmentContext plugin: what it injects and how it reads the sandbox."""
 
 import re
-from pathlib import Path
 
 from strands.sandbox.types import ExecutionResult, FileInfo
 
@@ -80,8 +79,9 @@ async def test_render_reports_the_real_working_directory_from_the_local_sandbox(
     monkeypatch.chdir(workdir)
     out = await env._render(create_harness(builtin_plugins=[]), {})
     assert out is not None
-    line = next(line for line in out.splitlines() if line.startswith("Working directory: "))
-    assert re.search(rf"[\\/]{re.escape(Path(workdir).name)}$", line), line
+    line = next((line for line in out.splitlines() if line.startswith("Working directory: ")), None)
+    assert line is not None, out
+    assert re.search(rf"[\\/]{re.escape(workdir.name)}$", line), out
 
 
 async def test_depth_limit_stops_the_walk():
