@@ -2392,8 +2392,8 @@ def test_message_cache_opt_out_keeps_original_shape(cache_config, captured_warni
 
     assert request["input"] == OpenAIResponsesModel._format_request_messages(messages)
     assert "prompt_cache_options" not in request
-    if cache_config is not None and cache_config.messages_ttl is False:
-        assert not captured_warnings
+    # Both fields gate checkpoints on this model, so neither is reported as having no effect.
+    assert not captured_warnings
 
 
 @pytest.mark.parametrize("options", [{"mode": "implicit", "ttl": "30m"}, {"mode": "explicit"}, {"ttl": "30m"}])
@@ -2546,7 +2546,7 @@ def test_message_cache_temporary_only_turn_has_no_checkpoint(dynamic_trailing_bl
     assert request["prompt_cache_options"] == {"mode": "explicit"}
 
 
-def test_message_cache_marks_eligible_text_before_media_and_skips_cache_points(caplog):
+def test_message_cache_marks_trailing_durable_media_and_skips_cache_points(caplog):
     model = OpenAIResponsesModel(model_id="gpt-5.6", cache_config=CacheConfig())
     request = model._format_request(
         [
@@ -2564,8 +2564,12 @@ def test_message_cache_marks_eligible_text_before_media_and_skips_cache_points(c
     )
 
     assert request["input"][0]["content"] == [
-        {"type": "input_text", "text": "durable", "prompt_cache_breakpoint": {"mode": "explicit"}},
-        {"type": "input_image", "image_url": "data:image/png;base64,aW1hZ2U="},
+        {"type": "input_text", "text": "durable"},
+        {
+            "type": "input_image",
+            "image_url": "data:image/png;base64,aW1hZ2U=",
+            "prompt_cache_breakpoint": {"mode": "explicit"},
+        },
         {"type": "input_text", "text": "temporary"},
     ]
     assert "cachePoint content block is not supported" in caplog.text
@@ -2588,7 +2592,7 @@ async def test_stream_forwards_dynamic_trailing_blocks_to_cache_formatter(openai
     assert "prompt_cache_breakpoint" not in content[1]
 
 
-def test_message_cache_media_only_output_and_empty_history_have_no_checkpoints():
+def test_message_cache_marks_media_only_tool_output_and_empty_history_has_no_checkpoints():
     model = OpenAIResponsesModel(model_id="gpt-5.6", cache_config=CacheConfig())
     request = model._format_request(
         [
@@ -2610,8 +2614,14 @@ def test_message_cache_media_only_output_and_empty_history_have_no_checkpoints()
         dynamic_trailing_blocks=1,
     )
 
-    assert "prompt_cache_breakpoint" not in str(request)
-    assert request["input"][1]["output"] == [{"type": "input_image", "image_url": "data:image/png;base64,aW1hZ2U="}]
+    assert request["prompt_cache_options"] == {"mode": "explicit"}
+    assert request["input"][1]["output"] == [
+        {
+            "type": "input_image",
+            "image_url": "data:image/png;base64,aW1hZ2U=",
+            "prompt_cache_breakpoint": {"mode": "explicit"},
+        }
+    ]
     assert request["input"][2] == {"role": "user", "content": [{"type": "input_text", "text": "temporary"}]}
     assert model._format_request([])["input"] == []
 
@@ -2632,14 +2642,76 @@ def test_message_cache_preserves_stateful_response_chaining():
     assert "prompt_cache_breakpoint" not in request["input"][0]["content"][1]
 
 
-def test_message_cache_preserves_implicit_for_durable_image_only_input():
+@pytest.mark.parametrize(
+    ("block", "part_type"),
+    [
+        ({"image": {"format": "png", "source": {"bytes": b"image"}}}, "input_image"),
+        ({"document": {"format": "pdf", "name": "doc", "source": {"bytes": b"pdf"}}}, "input_file"),
+    ],
+)
+def test_message_cache_marks_durable_media_only_input(block, part_type):
     model = OpenAIResponsesModel(model_id="gpt-5.6", cache_config=CacheConfig())
-    messages = [{"role": "user", "content": [{"image": {"format": "png", "source": {"bytes": b"image"}}}]}]
+    request = model._format_request([{"role": "user", "content": [block]}])
+
+    assert request["prompt_cache_options"] == {"mode": "explicit"}
+    part = request["input"][0]["content"][0]
+    assert part["type"] == part_type
+    assert part["prompt_cache_breakpoint"] == {"mode": "explicit"}
+
+
+def test_message_cache_without_input_parts_preserves_implicit_caching():
+    model = OpenAIResponsesModel(model_id="gpt-5.6", cache_config=CacheConfig())
+    messages = [{"role": "assistant", "content": [{"text": "hello"}]}]
     request = model._format_request(messages)
 
     assert "prompt_cache_options" not in request
     assert "prompt_cache_breakpoint" not in str(request)
     assert request["input"] == model._format_request_messages(messages)
+
+
+def test_message_cache_dynamic_tail_skips_unsupported_blocks(caplog):
+    model = OpenAIResponsesModel(model_id="gpt-5.6", cache_config=CacheConfig())
+    request = model._format_request(
+        [
+            {
+                "role": "user",
+                "content": [
+                    {"text": "durable"},
+                    {"text": "temporary"},
+                    {"cachePoint": {"type": "default"}},
+                    {"reasoningContent": {"reasoningText": {"text": "thinking"}}},
+                ],
+            }
+        ],
+        dynamic_trailing_blocks=3,
+    )
+
+    assert request["input"] == [
+        {
+            "role": "user",
+            "content": [
+                {"type": "input_text", "text": "durable", "prompt_cache_breakpoint": {"mode": "explicit"}},
+                {"type": "input_text", "text": "temporary"},
+            ],
+        }
+    ]
+    assert "cachePoint content block is not supported" in caplog.text
+    assert "reasoningContent is not yet supported" in caplog.text
+
+
+def test_message_cache_empty_tool_result_keeps_string_output():
+    model = OpenAIResponsesModel(model_id="gpt-5.6", cache_config=CacheConfig())
+    request = model._format_request(
+        [
+            {
+                "role": "user",
+                "content": [{"toolResult": {"toolUseId": "c1", "status": "success", "content": []}}, {"text": "next"}],
+            }
+        ]
+    )
+
+    assert {"type": "function_call_output", "call_id": "c1", "output": ""} in request["input"]
+    assert request["input"][0]["content"][0]["prompt_cache_breakpoint"] == {"mode": "explicit"}
 
 
 def test_message_cache_leaves_native_input_override_under_caller_control():
@@ -2689,3 +2761,24 @@ async def test_message_cache_works_with_older_client_create_signature(openai_cli
     assert calls[0]["extra_body"] == {"prompt_cache_options": {"mode": "explicit"}, **extra_body}
     assert calls[0]["input"][0]["content"][0]["prompt_cache_breakpoint"] == {"mode": "explicit"}
     assert model.config["params"] == original
+
+
+@pytest.mark.asyncio
+async def test_message_cache_structured_output_works_with_older_client_parse_signature(openai_client, alist):
+    calls = []
+
+    class Output(pydantic.BaseModel):
+        name: str
+
+    # Models the pre-prompt_cache_options signature: no catch-all kwargs accepting new fields.
+    async def parse(*, model, input, store, text_format, extra_body=None):
+        calls.append({"input": input, "extra_body": extra_body})
+        return SimpleNamespace(output_parsed=text_format(name="ok"))
+
+    openai_client.responses.parse.side_effect = parse
+    model = OpenAIResponsesModel(model_id="gpt-5.6", cache_config=CacheConfig())
+    events = await alist(model.structured_output(Output, [{"role": "user", "content": [{"text": "durable"}]}]))
+
+    assert events[-1]["output"].name == "ok"
+    assert calls[0]["extra_body"] == {"prompt_cache_options": {"mode": "explicit"}}
+    assert calls[0]["input"][0]["content"][0]["prompt_cache_breakpoint"] == {"mode": "explicit"}

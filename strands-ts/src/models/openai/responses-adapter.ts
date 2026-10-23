@@ -135,10 +135,11 @@ export function formatResponsesRequest(
   if (config.topP !== undefined) request.top_p = config.topP
 
   if (cacheMessages && (hasCheckpoints || (options?.dynamicTrailingBlocks ?? 0) > 0)) {
-    // Without a supported boundary or temporary suffix, leave implicit caching available (e.g. image-only input).
-    // Avoid writing a transient suffix, while preserving explicitly supplied mode, TTL and diagnostics.
-    const options = config.params?.prompt_cache_options as Record<string, unknown> | undefined
-    Object.assign(request, { prompt_cache_options: { mode: 'explicit', ...options } })
+    // Explicit mode keeps the temporary suffix out of the cache. Without a durable checkpoint or a
+    // temporary suffix, leave the implicit breakpoint so the request still caches. Caller-supplied
+    // mode, TTL and diagnostics take precedence.
+    const nativeCacheOptions = config.params?.prompt_cache_options as Record<string, unknown> | undefined
+    Object.assign(request, { prompt_cache_options: { mode: 'explicit', ...nativeCacheOptions } })
   }
 
   applyCacheConfig(

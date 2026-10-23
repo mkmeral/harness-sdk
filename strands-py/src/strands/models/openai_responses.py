@@ -79,6 +79,8 @@ _MAX_MEDIA_SIZE_LABEL = "20MB"
 _DEFAULT_MIME_TYPE = "application/octet-stream"
 _CONTEXT_WINDOW_OVERFLOW_MSG = "OpenAI Responses API threw context window overflow error"
 _RATE_LIMIT_MSG = "OpenAI Responses API threw rate limit error"
+# Input content types that accept prompt_cache_breakpoint (gpt-5.6+).
+_CACHEABLE_INPUT_TYPES = frozenset({"input_text", "input_image", "input_file"})
 
 
 class _OpenAIResponsesStreamError(RuntimeError):
@@ -337,13 +339,7 @@ class OpenAIResponsesModel(Model):
             agent_metadata,
             dynamic_trailing_blocks=kwargs.get("dynamic_trailing_blocks", 0),
         )
-        if "prompt_cache_options" in request:
-            # Send newer wire fields through extra_body so supported older OpenAI clients work too.
-            # The client's extra_body has final precedence; preserve the same override semantics.
-            request["extra_body"] = {
-                "prompt_cache_options": request.pop("prompt_cache_options"),
-                **(request.get("extra_body") or {}),
-            }
+        self._move_new_fields_to_extra_body(request)
         logger.debug("formatted request=<%s>", request)
 
         logger.debug("invoking OpenAI Responses API model")
@@ -548,6 +544,7 @@ class OpenAIResponsesModel(Model):
             try:
                 request = self._format_request(prompt, system_prompt=system_prompt)
                 request.pop("stream", None)
+                self._move_new_fields_to_extra_body(request)
                 response = await client.responses.parse(**request, text_format=output_model)
             except openai.APIError as error:
                 error_kind = classify_openai_error(error)
@@ -644,7 +641,8 @@ class OpenAIResponsesModel(Model):
 
         apply_cache_config(request, cache_config, agent_metadata, supports_message_caching=supports_message_caching)
         if cache_messages and (has_checkpoints or dynamic_trailing_blocks > 0):
-            # No text boundary and no temporary suffix: preserve implicit caching (e.g. image-only input).
+            # Explicit mode keeps the temporary suffix out of the cache. Without a durable checkpoint
+            # or a temporary suffix, leave the implicit breakpoint so the request still caches.
             request["prompt_cache_options"] = {"mode": "explicit", **request.get("prompt_cache_options", {})}
 
         return request
@@ -673,8 +671,21 @@ class OpenAIResponsesModel(Model):
                 # Default to auto for unknown formats
                 return {"tool_choice": "auto"}
 
+    @staticmethod
+    def _move_new_fields_to_extra_body(request: dict[str, Any]) -> None:
+        """Send wire fields newer than the minimum supported OpenAI client through ``extra_body``.
+
+        ``prompt_cache_options`` is a named kwarg only in recent clients; older supported clients
+        reject it on ``create`` and ``parse``. A caller-supplied ``extra_body`` keeps final precedence.
+        """
+        if "prompt_cache_options" in request:
+            request["extra_body"] = {
+                "prompt_cache_options": request.pop("prompt_cache_options"),
+                **(request.get("extra_body") or {}),
+            }
+
     def _supports_message_caching(self) -> bool:
-        """Whether the configured model supports explicit Responses input-text checkpoints."""
+        """Whether the configured model supports explicit Responses input checkpoints."""
         params = cast(dict[str, Any], self.config.get("params", {}))
         model_id = params.get("model", self.config["model_id"])
         match = re.match(r"^gpt-(\d+)(?:\.(\d+))?(?:-|$)", str(model_id))
@@ -686,7 +697,7 @@ class OpenAIResponsesModel(Model):
     ) -> tuple[list[dict[str, Any]], bool]:
         """Keep durable checkpoints stable when temporary trailing content changes between requests.
 
-        Only supported input-text endpoints can be marked. This changes cache placement, not the
+        Only input content blocks (text, image, file) can be marked. This changes cache placement, not the
         lifetime of content retained by a stateful server-side conversation.
         """
         formatted_messages: list[dict[str, Any]] = []
@@ -704,27 +715,40 @@ class OpenAIResponsesModel(Model):
                 skipped_blocks=skipped,
             )
             if message["role"] == "user":
-                candidate = cls._last_cacheable_text(items)
+                candidate = cls._last_cacheable_part(items)
                 if candidate is not None:
                     # Preserve every historical boundary: the provider bounds lookup and writes,
                     # not the number of markers callers may include in the request.
                     candidate["prompt_cache_breakpoint"] = {"mode": "explicit"}
                     has_checkpoints = True
-            cls._append_dynamic_content(items, message["content"][boundary:])
+            cls._append_dynamic_content(items, message["content"][boundary:], skipped_blocks=skipped)
             formatted_messages.extend(items)
         _log_skipped_blocks(logger, skipped)
         return formatted_messages, has_checkpoints
 
     @classmethod
-    def _append_dynamic_content(cls, items: list[dict[str, Any]], contents: list[ContentBlock]) -> None:
-        """Append temporary content after durable tool outputs, merging only with ordinary user content."""
+    def _append_dynamic_content(
+        cls, items: list[dict[str, Any]], contents: list[ContentBlock], *, skipped_blocks: Counter[str]
+    ) -> None:
+        """Append temporary content after durable tool outputs, merging only with ordinary user content.
+
+        The temporary blocks go through the regular formatter so unsupported blocks are skipped the
+        same way as durable content.
+        """
         if not contents:
             return
-        parts = [cls._format_request_message_content(content) for content in contents]
-        if items and items[-1].get("role") == "user" and isinstance(items[-1].get("content"), list):
-            items[-1]["content"].extend(parts)
-        else:
-            items.append({"role": "user", "content": parts})
+        tail = cls._format_request_messages(
+            [{"role": "user", "content": contents}], tool_output_content_array=True, skipped_blocks=skipped_blocks
+        )
+        if (
+            tail
+            and tail[0].get("role") == "user"
+            and items
+            and items[-1].get("role") == "user"
+            and isinstance(items[-1].get("content"), list)
+        ):
+            items[-1]["content"].extend(tail.pop(0)["content"])
+        items.extend(tail)
 
     @classmethod
     def _format_request_messages(
@@ -824,14 +848,14 @@ class OpenAIResponsesModel(Model):
         ]
 
     @staticmethod
-    def _last_cacheable_text(items: list[dict[str, Any]]) -> dict[str, Any] | None:
-        """Find the final eligible text block in a formatted durable user message."""
+    def _last_cacheable_part(items: list[dict[str, Any]]) -> dict[str, Any] | None:
+        """Find the final input content block in a formatted durable user message."""
         for item in reversed(items):
             parts = item.get("output") if item.get("type") == "function_call_output" else item.get("content")
             if not isinstance(parts, list):
                 continue
             for part in reversed(parts):
-                if part.get("type") == "input_text":
+                if part.get("type") in _CACHEABLE_INPUT_TYPES:
                     return cast(dict[str, Any], part)
         return None
 
@@ -935,7 +959,7 @@ class OpenAIResponsesModel(Model):
 
         # Return array if has media content, otherwise join as string for simpler text-only cases
         output: list[dict[str, Any]] | str
-        if has_media or content_array:
+        if has_media or (content_array and output_parts):
             output = output_parts
         else:
             output = "\n".join(part.get("text", "") for part in output_parts) if output_parts else ""

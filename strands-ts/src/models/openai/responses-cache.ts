@@ -7,7 +7,10 @@ import type { ResponseInputItem } from 'openai/resources/responses/responses'
 import { Message } from '../../types/messages.js'
 import type { CacheConfig } from '../model.js'
 
-type InputText = { type: 'input_text'; text: string; prompt_cache_breakpoint?: { mode: 'explicit' } }
+type CacheablePart = { type: string; prompt_cache_breakpoint?: { mode: 'explicit' } }
+
+/** Input content types that accept `prompt_cache_breakpoint` (gpt-5.6+). */
+const CACHEABLE_INPUT_TYPES = new Set(['input_text', 'input_image', 'input_file'])
 type FormatMessages = (messages: Message[]) => ResponseInputItem[]
 
 /**
@@ -45,7 +48,7 @@ export function formatCacheableResponsesMessages(
   format: FormatMessages
 ): { input: ResponseInputItem[]; hasCheckpoints: boolean } {
   const input: ResponseInputItem[] = []
-  const checkpoints: InputText[] = []
+  const checkpoints: CacheablePart[] = []
   for (const [index, message] of messages.entries()) {
     const dynamicCount = index === messages.length - 1 && message.role === 'user' ? dynamicTrailingBlocks : 0
     const boundary = Math.max(0, message.content.length - dynamicCount)
@@ -53,7 +56,7 @@ export function formatCacheableResponsesMessages(
     const items = format([stable])
     normalizeToolOutputs(items)
     if (message.role === 'user') {
-      const checkpoint = lastInputText(items)
+      const checkpoint = lastCacheablePart(items)
       if (checkpoint) checkpoints.push(checkpoint)
     }
     input.push(...items)
@@ -72,19 +75,20 @@ export function formatCacheableResponsesMessages(
 /** Use the same tool-output representation on both current and replayed turns. */
 function normalizeToolOutputs(items: ResponseInputItem[]): void {
   for (const item of items) {
-    if (item.type === 'function_call_output' && typeof item.output === 'string') {
+    // An empty result stays a string: an empty text block would be a meaningless checkpoint.
+    if (item.type === 'function_call_output' && typeof item.output === 'string' && item.output !== '') {
       item.output = [{ type: 'input_text', text: item.output }]
     }
   }
 }
 
-/** Find a supported endpoint, falling back before trailing media instead of marking unsupported types. */
-function lastInputText(items: ResponseInputItem[]): InputText | undefined {
+/** Find the final input content block (text, image, or file) in a formatted durable message. */
+function lastCacheablePart(items: ResponseInputItem[]): CacheablePart | undefined {
   for (const item of [...items].reverse()) {
     const content = item.type === 'function_call_output' ? item.output : 'content' in item ? item.content : undefined
     if (!Array.isArray(content)) continue
     for (const block of [...content].reverse()) {
-      if (block.type === 'input_text') return block as InputText
+      if (CACHEABLE_INPUT_TYPES.has(block.type)) return block as CacheablePart
     }
   }
   return undefined

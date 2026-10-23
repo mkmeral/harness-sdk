@@ -118,26 +118,38 @@ describe('Responses durable prompt caching', () => {
     ])
   })
 
-  it('falls back to supported text before media without dropping the image', () => {
+  it('marks trailing durable media as the checkpoint', () => {
     const image = new ImageBlock({ format: 'png', source: { bytes: new Uint8Array([1, 2, 3]) } })
     const msg = new Message({ role: 'user', content: [new TextBlock('stable'), image, new TextBlock('temporary')] })
     expect(input([msg], { dynamicTrailingBlocks: 1 })).toEqual([
       {
         role: 'user',
         content: [
-          { type: 'input_text', text: 'stable', prompt_cache_breakpoint: marker },
-          { type: 'input_image', image_url: 'data:image/png;base64,AQID' },
+          { type: 'input_text', text: 'stable' },
+          { type: 'input_image', image_url: 'data:image/png;base64,AQID', prompt_cache_breakpoint: marker },
           { type: 'input_text', text: 'temporary' },
         ],
       },
     ])
   })
 
-  it('keeps implicit caching for durable image-only input with no supported text boundary', () => {
+  it('checkpoints durable image-only input', () => {
     const image = new ImageBlock({ format: 'png', source: { bytes: new Uint8Array([1, 2, 3]) } })
     const req = request([new Message({ role: 'user', content: [image] })])
+    expect(req).toHaveProperty('prompt_cache_options.mode', 'explicit')
+    expect(req).toHaveProperty('input.0.content.0.prompt_cache_breakpoint', marker)
+  })
+
+  it('keeps implicit caching when no durable input part exists', () => {
+    const req = request([new Message({ role: 'assistant', content: [new TextBlock('hello')] })])
     expect(req).not.toHaveProperty('prompt_cache_options')
     expect(JSON.stringify(req)).not.toContain('prompt_cache_breakpoint')
+  })
+
+  it('keeps an empty tool result as a string output', () => {
+    const result = new ToolResultBlock({ toolUseId: 'a', status: 'success', content: [] })
+    const msg = new Message({ role: 'user', content: [result, new TextBlock('next')] })
+    expect(input([msg])).toContainEqual({ type: 'function_call_output', call_id: 'a', output: '' })
   })
 
   it('avoids implicit writes when the only text is a temporary suffix', () => {

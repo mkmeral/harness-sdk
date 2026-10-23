@@ -79,5 +79,6 @@ def apply_cache_config(
 
     supported = {"cache_key", "ttl"}
     if supports_message_caching:
-        supported.add("messages_ttl")
+        # strategy gates message checkpoints: only "auto" places them.
+        supported.update({"messages_ttl", "strategy"})
     warn_on_cache_config_not_supported(cache_config, "OpenAI", supported=supported)
