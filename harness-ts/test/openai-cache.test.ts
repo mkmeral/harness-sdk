@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { OpenAIModel } from '@strands-agents/sdk/models/openai'
@@ -82,7 +82,9 @@ describe('OpenAI harness prompt caching (offline)', () => {
     })
 
     const cwd = process.cwd()
-    const dir = mkdtempSync(join(tmpdir(), 'harness-openai-cache-'))
+    // Canonical path, as the sandbox shell reports it: Windows' tmpdir() can be an 8.3 short name and
+    // macOS' sits behind the /var -> /private/var symlink.
+    const dir = realpathSync.native(mkdtempSync(join(tmpdir(), 'harness-openai-cache-')))
     writeFileSync(join(dir, 'AGENTS.md'), projectDoc)
     process.chdir(dir)
     try {
