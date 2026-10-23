@@ -47,7 +47,7 @@ interface ResolvedOpenAICache {
  */
 function hasPlacementConfig(cacheConfig: CacheConfig, supportsMessageCaching: boolean): boolean {
   return (
-    (cacheConfig.strategy !== undefined && cacheConfig.strategy !== 'auto') ||
+    (!supportsMessageCaching && cacheConfig.strategy !== undefined && cacheConfig.strategy !== 'auto') ||
     (cacheConfig.toolsTTL !== undefined && cacheConfig.toolsTTL !== true) ||
     (cacheConfig.systemPromptTTL !== undefined && cacheConfig.systemPromptTTL !== true) ||
     (!supportsMessageCaching && cacheConfig.messagesTTL !== undefined && cacheConfig.messagesTTL !== true)
@@ -97,7 +97,7 @@ export function resolveOpenAICache(
     warnOnce(
       logger,
       supportsMessageCaching
-        ? 'openai responses caching | automatic message checkpoints require strategy auto; toolsTTL and systemPromptTTL are not applied'
+        ? 'openai responses caching | toolsTTL and systemPromptTTL are not applied'
         : 'openai caches prefixes automatically server-side | strategy, toolsTTL, systemPromptTTL and messagesTTL have no effect'
     )
   }

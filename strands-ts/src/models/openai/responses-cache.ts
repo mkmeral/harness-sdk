@@ -30,7 +30,8 @@ export function supportsResponsesCheckpoints(modelId: string): boolean {
 export function cacheResponsesMessages(modelId: string, cacheConfig: CacheConfig | undefined): boolean {
   return (
     cacheConfig !== undefined &&
-    (cacheConfig.strategy === undefined || cacheConfig.strategy === 'auto') &&
+    // 'anthropic' means SDK-placed cache points, the same mechanism these checkpoints use.
+    (cacheConfig.strategy === undefined || cacheConfig.strategy === 'auto' || cacheConfig.strategy === 'anthropic') &&
     cacheConfig.messagesTTL !== false &&
     supportsResponsesCheckpoints(modelId)
   )

@@ -208,15 +208,21 @@ describe('Responses durable prompt caching', () => {
     }
   )
 
-  it.each([undefined, { messagesTTL: false }, { strategy: 'anthropic' as const }])(
-    'does not opt in with cacheConfig=%j',
+  it.each([{ strategy: 'auto' as const }, { strategy: 'anthropic' as const }])(
+    'places checkpoints with cacheConfig=%j',
     (cacheConfig) => {
-      const modelConfig: OpenAIResponsesConfig = { modelId: 'gpt-6-sol', ...(cacheConfig ? { cacheConfig } : {}) }
-      const req = formatResponsesRequest(modelConfig, [user('question')], undefined, false)
-      expect(req).not.toHaveProperty('prompt_cache_options')
-      expect(JSON.stringify(req)).not.toContain('prompt_cache_breakpoint')
+      const req = formatResponsesRequest({ modelId: 'gpt-6-sol', cacheConfig }, [user('question')], undefined, false)
+      expect(req).toHaveProperty('prompt_cache_options.mode', 'explicit')
+      expect(req).toHaveProperty('input.0.content.0.prompt_cache_breakpoint', marker)
     }
   )
+
+  it.each([undefined, { messagesTTL: false }])('does not opt in with cacheConfig=%j', (cacheConfig) => {
+    const modelConfig: OpenAIResponsesConfig = { modelId: 'gpt-6-sol', ...(cacheConfig ? { cacheConfig } : {}) }
+    const req = formatResponsesRequest(modelConfig, [user('question')], undefined, false)
+    expect(req).not.toHaveProperty('prompt_cache_options')
+    expect(JSON.stringify(req)).not.toContain('prompt_cache_breakpoint')
+  })
 
   it('merges a native TTL without losing explicit mode', () => {
     const req = request([user('question')], undefined, { params: { prompt_cache_options: { ttl: '12h' } } })

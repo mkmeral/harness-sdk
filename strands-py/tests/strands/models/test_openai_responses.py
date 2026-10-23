@@ -2376,7 +2376,7 @@ def test_message_cache_model_support(model_id, enabled, messages):
         assert part["prompt_cache_breakpoint"] == {"mode": "explicit"}
 
 
-@pytest.mark.parametrize("cache_config", [None, CacheConfig(messages_ttl=False), CacheConfig(strategy="anthropic")])
+@pytest.mark.parametrize("cache_config", [None, CacheConfig(messages_ttl=False)])
 def test_message_cache_opt_out_keeps_original_shape(cache_config, captured_warnings):
     model = OpenAIResponsesModel(model_id="gpt-5.6", cache_config=cache_config)
     messages = [
@@ -2392,7 +2392,7 @@ def test_message_cache_opt_out_keeps_original_shape(cache_config, captured_warni
 
     assert request["input"] == OpenAIResponsesModel._format_request_messages(messages)
     assert "prompt_cache_options" not in request
-    # Both fields gate checkpoints on this model, so neither is reported as having no effect.
+    # messages_ttl gates checkpoints on this model, so it is not reported as having no effect.
     assert not captured_warnings
 
 
@@ -2812,3 +2812,22 @@ def test_message_cache_dynamic_tool_result_uses_array_output():
         "call_id": "c1",
         "output": [{"type": "input_text", "text": "out"}],
     }
+
+
+@pytest.mark.parametrize("strategy", ["auto", "anthropic"])
+def test_message_cache_sdk_placed_strategies_place_checkpoints(strategy, captured_warnings):
+    # "anthropic" means SDK-placed cache points, the same mechanism as these checkpoints.
+    model = OpenAIResponsesModel(model_id="gpt-5.6", cache_config=CacheConfig(strategy=strategy))
+    request = model._format_request([{"role": "user", "content": [{"text": "durable"}]}])
+
+    assert request["prompt_cache_options"] == {"mode": "explicit"}
+    assert request["input"][0]["content"][0]["prompt_cache_breakpoint"] == {"mode": "explicit"}
+    assert not captured_warnings
+
+
+def test_message_cache_explicit_messages_ttl_true_is_supported(captured_warnings):
+    model = OpenAIResponsesModel(model_id="gpt-5.6", cache_config=CacheConfig(messages_ttl=True))
+    request = model._format_request([{"role": "user", "content": [{"text": "durable"}]}])
+
+    assert request["input"][0]["content"][0]["prompt_cache_breakpoint"] == {"mode": "explicit"}
+    assert not captured_warnings

@@ -158,8 +158,8 @@ class OpenAIResponsesModel(Model):
             cache_config: Prompt-caching configuration. OpenAI routes cache reads on
                 ``cache_key`` (mapped to ``prompt_cache_key``) and honors ``ttl`` only when it names
                 an OpenAI retention value. On GPT-5.6 and later, automatic message checkpoints
-                exclude per-call injected content; they require ``strategy="auto"`` and
-                ``messages_ttl=False`` disables them. ``tools_ttl`` and ``system_prompt_ttl`` have
+                exclude per-call injected content; ``strategy="auto"`` or ``"anthropic"``
+                places them and ``messages_ttl=False`` disables them. ``tools_ttl`` and ``system_prompt_ttl`` have
                 no effect. An explicit
                 ``prompt_cache_key``/``prompt_cache_retention`` in ``params`` takes precedence.
         """
@@ -596,7 +596,8 @@ class OpenAIResponsesModel(Model):
         cache_messages = (
             supports_message_caching
             and cache_config is not None
-            and cache_config.strategy == "auto"
+            # "anthropic" means SDK-placed cache points, the same mechanism these checkpoints use.
+            and cache_config.strategy in ("auto", "anthropic")
             and cache_config.messages_ttl is not False
             and "input" not in cast(dict[str, Any], self.config.get("params", {}))
         )
